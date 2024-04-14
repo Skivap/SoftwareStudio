@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:prototype_ss/homepage/main_page.dart';
 import 'package:prototype_ss/homepage/search_page.dart';
-
+import 'package:prototype_ss/chat.dart';
 class HomePage extends StatefulWidget {
   
   final void Function(String) changePage;
@@ -38,26 +38,26 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context){
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60.0), // Adjust the height as needed
-          child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3), // changes position of shadow
-                ),
-              ],
-            ),
-            child: AppBar(
-              backgroundColor: Color.fromARGB(255, 188, 60, 103),
-              // leading: ,
-              // title: Text('Your App Title'),
-            ),
-          ),
-      ),
+      // appBar: PreferredSize(
+      //     preferredSize: Size.fromHeight(60.0), // Adjust the height as needed
+      //     child: Container(
+      //       decoration: BoxDecoration(
+      //         boxShadow: [
+      //           BoxShadow(
+      //             color: Colors.grey.withOpacity(0.5),
+      //             spreadRadius: 5,
+      //             blurRadius: 7,
+      //             offset: Offset(0, 3), // changes position of shadow
+      //           ),
+      //         ],
+      //       ),
+      //       child: AppBar(
+      //         backgroundColor: Color.fromARGB(255, 188, 60, 103),
+      //         // leading: ,
+      //         title: Text('Aurick Tolol'),
+      //       ),
+      //     ),
+      // ),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
@@ -75,7 +75,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
                 child: Text('Wow, the list is Empty!', style: textTheme.titleLarge),
               ),
               Center(
-                child: Text('You Should Buy Something', style: textTheme.titleLarge),
+                child: ChatPage(),
               ),
               Center(
                 child: Text('Sign up first to reveal this page', style: textTheme.titleLarge),
@@ -154,7 +154,7 @@ class PageIndicator extends StatelessWidget {
       Icons.home,
       Icons.search,
       Icons.shopping_cart,
-      Icons.local_shipping,
+      Icons.chat,
       Icons.person
     ];
 
