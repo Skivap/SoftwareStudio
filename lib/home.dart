@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:prototype_ss/homepage/main_page.dart';
-import 'package:prototype_ss/homepage/search_page.dart';
-import 'package:prototype_ss/chat.dart';
+import 'package:prototype_ss/views/main_page.dart';
+import 'package:prototype_ss/views/search_page.dart';
+import 'package:prototype_ss/views/chat.dart';
 class HomePage extends StatefulWidget {
   
   final void Function(String) changePage;
@@ -38,26 +38,6 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context){
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      // appBar: PreferredSize(
-      //     preferredSize: Size.fromHeight(60.0), // Adjust the height as needed
-      //     child: Container(
-      //       decoration: BoxDecoration(
-      //         boxShadow: [
-      //           BoxShadow(
-      //             color: Colors.grey.withOpacity(0.5),
-      //             spreadRadius: 5,
-      //             blurRadius: 7,
-      //             offset: Offset(0, 3), // changes position of shadow
-      //           ),
-      //         ],
-      //       ),
-      //       child: AppBar(
-      //         backgroundColor: Color.fromARGB(255, 188, 60, 103),
-      //         // leading: ,
-      //         title: Text('Aurick Tolol'),
-      //       ),
-      //     ),
-      // ),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
@@ -66,7 +46,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
             onPageChanged: _handlePageViewChanged,
             children: <Widget>[
               Center(
-                child: main_page(context), // Text('First Page', style: textTheme.titleLarge),
+                child: MainPage(),
               ),
               Center(
                 child: search_page(context),
@@ -74,7 +54,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
               Center(
                 child: Text('Wow, the list is Empty!', style: textTheme.titleLarge),
               ),
-              Center(
+              const Center(
                 child: ChatPage(),
               ),
               Center(

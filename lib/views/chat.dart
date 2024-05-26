@@ -3,9 +3,8 @@
 import 'dart:js_util';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:prototype_ss/homepage/search_page.dart';
-import 'data/chatdata.dart';
+import 'package:prototype_ss/views/search_page.dart';
+import '../model/chatdata.dart';
 
 final messages = [
     ChatData(username:"@fashionista42", message:"Nice!", date:"2024/4/12"),

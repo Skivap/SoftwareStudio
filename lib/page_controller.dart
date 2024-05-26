@@ -8,7 +8,6 @@ class PageSwitcher extends StatefulWidget {
 
   @override
   State<PageSwitcher> createState() => _PageSwitcher();
-
 }
 
 class _PageSwitcher extends State<PageSwitcher> {

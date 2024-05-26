@@ -1,58 +1,34 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-
-import 'package:prototype_ss/product.dart';
+import 'package:prototype_ss/widgets/product_page.dart';
 
 List<String> itemList = ['One', 'Two', 'Three', 'Four','One', 'Two', 'Three'];
 
-Widget search_page(BuildContext context){
-  return 
-  Padding(
+Widget search_page(BuildContext context) {
+  return Padding(
     padding: const EdgeInsets.only(
       left: 8.0,
       right: 8.0,
       top: 20,
-
     ),
-    child: ListView(
-
-        
-        children: [
-
+    child: Column(
+      children: [
         const SizedBox(height: 10.0),
-        
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
             "Home Page Sucks? Try Search!",
-            style: TextStyle(
-              fontSize: 20
-            ),
+            style: TextStyle(fontSize: 20),
           ),
         ),
-
         const SizedBox(height: 10.0),
-        
-        Search_Bar(),
-    
+        Search_Bar(), 
         const SizedBox(height: 40),
-
-        GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: 0.75,
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          children: [
-            for(String item in itemList)
-            ProductCard(item, context)
-          ],
+        const Expanded(
+          child: ProductPage(),
         ),
         const SizedBox(height: 120),
       ],
     ),
-    
   );
 }
 
