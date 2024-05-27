@@ -2,6 +2,26 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+
+	<key>GIDClientID</key> 
+		<string>577971703836-qjn5kk0g5p091mvjg09rb27vaci4tto6.apps.googleusercontent.com</string>
+	
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict> 
+			<key>CFBundleTypeRole</key> 
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key> 
+			<array>
+				<string>com.googleusercontent.apps.577971703836-qjn5kk0g5p091mvjg09rb27vaci4tto6</string> 
+			</array>
+		</dict> 
+	</array>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>This app requires access to the photo library to select profile pictures</string>
+	<key>NSCameraUsageDescription</key> 
+	<string>This app need access to the camera to take photos</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

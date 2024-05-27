@@ -1,5 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:prototype_ss/widgets/authentication.dart';
 
 class LoginPage extends StatefulWidget {
   
@@ -9,26 +10,31 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPage();
-
 }
 
 class _LoginPage extends State<LoginPage> {
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   static double padder = 50.0;
 
   String? username;
   String? password;
 
-  void loginAccount(){
+  void loginAccount() async{
+    String email = _usernameController.text.trim();
+    String password = _passwordController.text.trim();
 
-    username = _usernameController.text;
-    password = _passwordController.text;
-
-    widget.changePage("Home");
-    
+    User? user = await _authService.signInWithEmailPassword(email, password);
+    if (user == null){
+      print('Login Failed');
+      // mau tambah showDialog nanti
+    }
+    else {
+      widget.changePage("Home");
+    }
   }
 
   @override
@@ -47,8 +53,8 @@ class _LoginPage extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const SizedBox(
-                  width: 300, // Adjust width as needed
-                  height: 100, // Adjust height as needed
+                  width: 300,
+                  height: 100,
                   child: Image(image: AssetImage("assets/images/scaled_logo.png")),
                 ),
                 const SizedBox(height: 50.0),
@@ -74,7 +80,7 @@ class _LoginPage extends State<LoginPage> {
                         color: Colors.black.withOpacity(0.2), // Shadow color
                         spreadRadius: 2, // Spread radius
                         blurRadius: 5, // Blur radius
-                        offset: Offset(0, 3), // Offset
+                        offset: const Offset(0, 3), // Offset
                       ),
                     ],
                   ),
@@ -86,7 +92,7 @@ class _LoginPage extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(3),
                       ),
                       elevation: 2, 
-                      backgroundColor: Color.fromARGB(255, 188, 60, 103),
+                      backgroundColor: const Color.fromARGB(255, 188, 60, 103),
                       
                     ),
                     child: const Padding(
@@ -110,8 +116,13 @@ class _LoginPage extends State<LoginPage> {
 
                 const SizedBox(height: 40.0),
 
-                const Text(
-                  "Don't have an account yet? Sign Up!"
+                ElevatedButton(
+                  onPressed: () => {
+                    widget.changePage("SignUp")
+                  },
+                  child: const Text(
+                    "Don't have an account yet? Sign Up!"
+                  ),
                 ),
               ],
             ),
@@ -128,7 +139,7 @@ Widget textForm(String text, TextEditingController control, bool hide){
     obscureText: hide,
     decoration: InputDecoration(
       filled: true,
-      fillColor: Color.fromARGB(49, 225, 140, 140),
+      fillColor: const Color.fromARGB(49, 225, 140, 140),
       labelText: text,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
