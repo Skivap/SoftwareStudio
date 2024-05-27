@@ -1,19 +1,39 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+function generateIdempotencyKey(userId){
+    return `createUserDocument_${userId}`;
+}
+
+exports.createUserDocument = functions.auth.user().onCreate(async (user) => {
+    const userId = user.uid;
+    const email = user.email;
+
+    const idempotencyKey = generateIdempotencyKey(userId);
+    const idempotencyRef = admin.firestore().collection('idempotencyKeys').doc(idempotencyKey);
+    const userRef = admin.firestore().collection('users').doc(userId);
+    const cartRef = userRef.collection('cart').doc();
+
+    return admin.firestore().runTransaction(async (transaction) => {
+        const idempotencyDoc = await transaction.get(idempotencyRef);
+
+        if (!idempotencyDoc.exists) {
+            transaction.set(userRef, {
+                email: email,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            transaction.set(idempotencyRef, {
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        } else {
+            console.log('Idempotency key already exists');
+        }
+    }).catch((error) => {
+        console.error('Error creating user doc for uid', userId, error);
+        throw new functions.https.HttpsError('internal', 'Unable to create user document');
+    });
+});

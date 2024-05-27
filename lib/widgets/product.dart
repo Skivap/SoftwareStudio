@@ -54,6 +54,20 @@ class ProductCard extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () => {
+                    
+                  }, 
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple
+                  ),
+                  child: const Text( 
+                    'Buy',
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                  )
+                )
               ],
             )
           ),
