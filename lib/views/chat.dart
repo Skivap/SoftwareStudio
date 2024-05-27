@@ -1,7 +1,4 @@
 // ignore_for_file: prefer_const_constructors
-
-import 'dart:js_util';
-
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/views/search_page.dart';
 import '../model/chatdata.dart';

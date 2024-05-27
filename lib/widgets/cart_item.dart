@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:prototype_ss/widgets/buy_product_screen.dart';
 
-class ProductCard extends StatelessWidget {
-  final Map<String, dynamic> productData;
+class CartItemCard extends StatelessWidget {
+  final Map<String, dynamic> productInfo;
+  final Map<String, dynamic> cartItemData;
+  final Function(String) removeFromCart;
 
-  const ProductCard({super.key, required this.productData});
+  const CartItemCard({
+    super.key,
+    required this.productInfo,
+    required this.cartItemData,
+    required this.removeFromCart,
+  });
 
-  void _showProductDetails(BuildContext context){
+  void _showProductDetails(BuildContext context) {
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
-      context: context, 
+      context: context,
       builder: (context) {
         return FractionallySizedBox(
           heightFactor: 0.9,
@@ -22,61 +28,62 @@ class ProductCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
                     child: Image.network(
-                      productData['imageUrl'],
+                      productInfo['imageUrl'],
                       fit: BoxFit.cover,
                       height: 200,
                       width: double.infinity,
-                    )
-                  )
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 10,),
                 Text(
-                  productData['name'],
+                  productInfo['name'],
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold
-                  )
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10,),
                 Text(
-                  '${productData['price']} NTD',
+                  '${productInfo['price']} NTD',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold
-                  )
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  productData['description'] ?? 'No description available',
+                  productInfo['description'] ?? 'No description available',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () => {
-                    showDialog(
-                      context: context, 
-                      builder: (context) => BuyScreen(productData: productData),
-                    )
-                  }, 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple
-                  ),
-                  child: const Text( 
-                    'Buy',
-                    style: TextStyle(
-                      color: Colors.white
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        removeFromCart(productInfo['productId']);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text(
+                        'Remove from Cart',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  )
-                )
+                  ],
+                ),
               ],
-            )
+            ),
           ),
         );
-      });
+      },
+    );
   }
 
   @override
@@ -105,7 +112,7 @@ class ProductCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
               child: Image.network(
-                productData['imageUrl'],
+                productInfo['imageUrl'],
                 fit: BoxFit.cover,
                 height: 100,
                 width: double.infinity,
@@ -116,7 +123,7 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    productData['name'],
+                    productInfo['name'],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
@@ -124,7 +131,24 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${productData['price']} NTD',
+                    '${productInfo['price']} NTD',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Quantity: ${cartItemData['quantity']}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    'Total Due: ${productInfo['price'] * cartItemData['quantity']}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,

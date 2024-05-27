@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:prototype_ss/widgets/NumericStepButton.dart';
+import 'package:prototype_ss/widgets/numericStepButton.dart';
 
 class BuyScreen extends StatefulWidget{
   final Map<String, dynamic> productData;
@@ -12,15 +14,40 @@ class BuyScreen extends StatefulWidget{
 }
 
 class _BuyScreen extends State<BuyScreen>{
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   int _quantity = 1;
 
-  void _addToCart() {
-    // String userId = FirebaseAuth.instance.currentUser!.uid;
-    // FirebaseFirestore.instance.collection('users').doc(userId).collection('cart').add({
-    //   'productId': widget.productData['productId'],
-    //   'quantity': _quantity,
-    //   'price': widget.productData['price'],
-    // });
+  String _generateIdempotencyKey(String userId, String productId){
+    return 'addToCart_${userId}_${productId}_${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  void _addToCart() async{
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    String productId = widget.productData['productId'];
+    String idempotencyKey = _generateIdempotencyKey(userId, productId);
+
+    DocumentReference userRef = _firestore.collection('users').doc(userId);
+    DocumentReference idempotencyRef = _firestore.collection('idempotencyKeys').doc(idempotencyKey);
+    DocumentReference cartRef = userRef.collection('cart').doc();
+
+    await _firestore.runTransaction((transaction) async {
+      DocumentSnapshot idempotencySnapshot = await transaction.get(idempotencyRef);
+      if (!idempotencySnapshot.exists) {
+        transaction.set(cartRef, {
+          'productId': productId,
+          'quantity': _quantity,
+          'price': widget.productData['price'],
+        });
+        transaction.set(idempotencyRef, {
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        print('Idempotency key already exists');
+      }
+    }).catchError((e) {
+      print('Error adding to cart: $e');
+    });
+
     Navigator.of(context).pop();
   }
 

@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:prototype_ss/widgets/product.dart';
 import 'package:prototype_ss/widgets/product_page.dart';
 
 var headerStyle = const TextStyle(
