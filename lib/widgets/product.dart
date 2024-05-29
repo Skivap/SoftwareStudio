@@ -124,7 +124,7 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${productData['price']} NTD',
+                    '${productData['availableStock']} NTD',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,

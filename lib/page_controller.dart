@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prototype_ss/home.dart';
 import 'package:prototype_ss/views/login.dart';
 import 'package:prototype_ss/views/signup.dart';
+import 'package:prototype_ss/views/shopping_cart.dart';
 
 class PageSwitcher extends StatefulWidget {
   

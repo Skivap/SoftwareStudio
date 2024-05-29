@@ -1,49 +1,29 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<User?> signUpWithEmailPassword(String email, String password, String name, String idempotencyKey) async {
-  try {
-    UserCredential result = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    User? user = result.user;
+  Future<User?> signUpWithEmailPassword(String email, String password, String displayName) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (user != null) {
-      await _firestore.runTransaction((transaction) async {
-        DocumentReference userRef = _firestore.collection('users').doc(user.uid);
-        DocumentReference idempotencyRef = _firestore.collection('idempotencyKeys').doc(idempotencyKey);
-        DocumentSnapshot idempotencySnapshot = await transaction.get(idempotencyRef);
+      User? user = result.user;
 
-        if (!idempotencySnapshot.exists) {
-          transaction.set(userRef, {
-            'name': name,
-            'email': email,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-
-          CollectionReference cartRef = userRef.collection('cart');
-          transaction.set(cartRef.doc(), {});
-
-          transaction.set(idempotencyRef, {
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        } else {
-          throw Exception('Idempotency key already exists');
-        }
-      });
+      if (user != null) {
+        await user.updateDisplayName(displayName);
+        await user.reload();
+        user = _auth.currentUser;
+        return user;
+      }
+    } catch (e, stackTrace) {
+      print('Error in signUpWithEmailPassword: $e');
+      print('Stack trace: $stackTrace');
     }
-    return user;
-  } catch (e) {
-    print('Error: $e');
     return null;
   }
-}
-
 
   Future<User?> signInWithEmailPassword(String email, String password) async {
     try {
@@ -53,8 +33,9 @@ class AuthService {
       );
       User? user = result.user;
       return user;
-    } catch (e) {
-      print('Error: $e');
+    } catch (e, stackTrace) {
+      print('Error in signInWithEmailPassword: $e');
+      print('Stack trace: $stackTrace');
       return null;
     }
   }

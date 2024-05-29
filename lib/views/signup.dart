@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
-import 'package:uuid/uuid.dart';
 
 class SignUpPage extends StatefulWidget {
   final void Function(String) changePage;
@@ -9,23 +8,17 @@ class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key, required this.changePage});
 
   @override
-  State<SignUpPage> createState() => _SignUpPage();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpPage extends State<SignUpPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final AuthService _authService = AuthService();
-  final Uuid _uuid = const Uuid();
 
   static double padder = 50.0;
-
-  String? username;
-  String? password;
-  String? confirmPassword;
-  String? name;
 
   void signUpAccount() async {
     String email = _usernameController.text.trim();
@@ -35,18 +28,19 @@ class _SignUpPage extends State<SignUpPage> {
 
     if (password != confirmPassword) {
       print('Passwords do not match');
-      // Show dialog or error message
       return;
     }
-
-    String idempotencyKey = _uuid.v4();
-
-    User? user = await _authService.signUpWithEmailPassword(email, password, name, idempotencyKey);
-    if (user == null) {
-      print('Sign Up Failed');
-      // Show dialog or error message
-    } else {
-      widget.changePage("Home");
+    try {
+      User? user = await _authService.signUpWithEmailPassword(email, password, name);
+      if (user == null) {
+        print('Sign Up Failed');
+      } else {
+        print('Sign Up Successful: ${user.uid}');
+        widget.changePage("Home");
+      }
+    } catch (e, stackTrace) {
+      print('Sign Up Error: $e');
+      print('Stack trace: $stackTrace');
     }
   }
 
@@ -103,10 +97,10 @@ class _SignUpPage extends State<SignUpPage> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Shadow color
-                    spreadRadius: 2, // Spread radius
-                    blurRadius: 5, // Blur radius
-                    offset: const Offset(0, 3), // Offset
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -131,8 +125,8 @@ class _SignUpPage extends State<SignUpPage> {
                     'Sign Up',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16, // Adjust font size as needed
-                      fontWeight: FontWeight.bold, // Adjust font weight as needed
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

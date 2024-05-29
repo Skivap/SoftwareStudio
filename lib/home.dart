@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:prototype_ss/views/main_page.dart';
 import 'package:prototype_ss/views/search_page.dart';
 import 'package:prototype_ss/views/chat.dart';
+import 'package:prototype_ss/views/shopping_cart.dart';
 class HomePage extends StatefulWidget {
   
   final void Function(String) changePage;
@@ -52,7 +53,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
                 child: search_page(context),
               ),
               Center(
-                child: Text('Wow, the list is Empty!', style: textTheme.titleLarge),
+                child: ShoppingCart(),
               ),
               const Center(
                 child: ChatPage(),

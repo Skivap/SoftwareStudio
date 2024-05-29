@@ -1,82 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'product.dart';
-import 'dart:async';
 
-class ProductPage extends StatefulWidget {
+class ProductPage extends StatelessWidget {
   final Axis scrollDirection;
+
   const ProductPage({super.key, this.scrollDirection = Axis.vertical});
 
   @override
-  State<ProductPage> createState() => _ProductPageState();
-}
-
-class _ProductPageState extends State<ProductPage> {
-  late List<Map<String, dynamic>> products = [];
-  bool isLoading = true;
-  String errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    getProductData();
-  }
-
-  void getProductData() async {
-    try {
-      const Duration timeoutDuration = Duration(seconds: 10);
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .get()
-          .timeout(timeoutDuration); 
-
-      if (querySnapshot.docs.isNotEmpty) {
-        setState(() {
-          products = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
-          errorMessage = 'No products found';
-        });
-      }
-    } on TimeoutException catch (_) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Firestore query timed out';
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error fetching data from Firestore: $e';
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Scaffold(
+      body: FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance.collection('products').get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error fetching data: ${snapshot.error}'));
+          } else if (snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No products found'));
+          } else {
+            List<Map<String, dynamic>> products = snapshot.data!.docs.map((doc) {
+              var data = doc.data() as Map<String, dynamic>;
+              data['productId'] = doc.id;
+              return data;
+            }).toList();
 
-    if (errorMessage.isNotEmpty) {
-      return Center(child: Text(errorMessage));
-    }
-
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: widget.scrollDirection == Axis.vertical ? 2 : 1,
-        childAspectRatio: 1,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
+            return GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: scrollDirection == Axis.vertical ? 2 : 1,
+                childAspectRatio: 1,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+              ),
+              scrollDirection: scrollDirection,
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return ProductCard(
+                  productData: products[index],
+                );
+              },
+            );
+          }
+        },
       ),
-      scrollDirection: widget.scrollDirection,
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        return ProductCard(productData: products[index]);
-      },
     );
   }
 }

@@ -41,6 +41,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
       if (querySnapshot.docs.isNotEmpty) {
         setState(() {
           cartItems = querySnapshot.docs
+              .where((doc) => doc.id != 'defaultCart')
               .map((doc) => doc.data() as Map<String, dynamic>)
               .toList();
           isLoading = false;

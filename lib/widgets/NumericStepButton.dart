@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 class NumericStepButton extends StatefulWidget {
   final int minValue;
   final int maxValue;
-
   final ValueChanged<int> onChanged;
+  final int initialValue;  // Add an initial value parameter
 
-  const NumericStepButton(
-      {required Key key, this.minValue = 0, this.maxValue = 10, required this.onChanged})
-      : super(key: key);
+  const NumericStepButton({
+    required Key key,
+    this.minValue = 0,
+    this.maxValue = 10,
+    required this.onChanged,
+    this.initialValue = 1,  // Default initial value
+  }) : super(key: key);
 
   @override
   State<NumericStepButton> createState() {
@@ -17,8 +21,13 @@ class NumericStepButton extends StatefulWidget {
 }
 
 class _NumericStepButtonState extends State<NumericStepButton> {
+  late int counter;  // Declare counter as a late variable
 
-  int counter= 0;
+  @override
+  void initState() {
+    super.initState();
+    counter = widget.initialValue;  // Initialize counter with initial value
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,7 @@ class _NumericStepButtonState extends State<NumericStepButton> {
           IconButton(
             icon: const Icon(
               Icons.remove,
-              color: Colors.blue
+              color: Colors.blue,
             ),
             padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 18.0),
             iconSize: 32.0,
@@ -38,8 +47,8 @@ class _NumericStepButtonState extends State<NumericStepButton> {
               setState(() {
                 if (counter > widget.minValue) {
                   counter--;
+                  widget.onChanged(counter);  // Call onChanged with the updated value
                 }
-                widget.onChanged(counter);
               });
             },
           ),
@@ -64,8 +73,8 @@ class _NumericStepButtonState extends State<NumericStepButton> {
               setState(() {
                 if (counter < widget.maxValue) {
                   counter++;
+                  widget.onChanged(counter);  // Call onChanged with the updated value
                 }
-                widget.onChanged(counter);
               });
             },
           ),
