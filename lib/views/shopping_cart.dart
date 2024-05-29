@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:prototype_ss/widgets/cart_item.dart';
 
 class ShoppingCart extends StatefulWidget {
-  const ShoppingCart({Key? key});
+  const ShoppingCart({super.key});
 
   @override
   State<ShoppingCart> createState() => _ShoppingCartState();
