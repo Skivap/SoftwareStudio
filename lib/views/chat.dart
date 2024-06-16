@@ -75,7 +75,7 @@ class ChatBar extends StatelessWidget {
         SizedBox(height: 20.0,),
         Column(
           children: [
-            Container(
+            SizedBox(
               width: 333,
               height: 57,
               child: Stack(

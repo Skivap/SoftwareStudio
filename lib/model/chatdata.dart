@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class ChatData{
   final String username;
   final String message;

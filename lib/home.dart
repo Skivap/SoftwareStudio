@@ -4,6 +4,8 @@ import 'package:prototype_ss/views/main_page.dart';
 import 'package:prototype_ss/views/search_page.dart';
 import 'package:prototype_ss/views/chat.dart';
 import 'package:prototype_ss/views/shopping_cart.dart';
+import 'package:prototype_ss/views/user_settings.dart';
+
 class HomePage extends StatefulWidget {
   
   final void Function(String) changePage;
@@ -46,20 +48,20 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
             controller: _pageViewController,
             onPageChanged: _handlePageViewChanged,
             children: <Widget>[
-              Center(
+              const Center(
                 child: MainPage(),
               ),
               Center(
-                child: search_page(context),
+                child: searchPage(context),
               ),
-              Center(
+              const Center(
                 child: ShoppingCart(),
               ),
               const Center(
                 child: ChatPage(),
               ),
               Center(
-                child: Text('Sign up first to reveal this page', style: textTheme.titleLarge),
+                child: UserSettings(changePage: widget.changePage,),
               ),
             ],
           ),
@@ -129,7 +131,7 @@ class PageIndicator extends StatelessWidget {
     if (!isOnDesktopAndWeb) {
       return const SizedBox.shrink();
     }
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    //final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     final icons = [
       Icons.home,
@@ -149,7 +151,7 @@ class PageIndicator extends StatelessWidget {
             color: Colors.grey.withOpacity(0.5), // Shadow color
             spreadRadius: 5,
             blurRadius: 7,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: const Offset(0, 3), // changes position of shadow
           ),
         ],
       ),

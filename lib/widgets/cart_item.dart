@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CartItemCard extends StatelessWidget {
   final Map<String, dynamic> productInfo;
   final Map<String, dynamic> cartItemData;
-  final Function(String) removeFromCart;
+  final void Function() removeFromCart;
 
   const CartItemCard({
     super.key,
@@ -28,16 +28,27 @@ class CartItemCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
                     child: Image.network(
-                      productInfo['imageUrl'],
+                      productInfo['imageUrl'] ?? '',
                       fit: BoxFit.cover,
                       height: 200,
                       width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
                 const SizedBox(height: 10,),
                 Text(
-                  productInfo['name'],
+                  productInfo['name'] ?? 'Loading...',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 24,
@@ -46,7 +57,7 @@ class CartItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10,),
                 Text(
-                  '${productInfo['price']} NTD',
+                  productInfo.containsKey('price') ? '${productInfo['price']} NTD' : 'Loading...',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20,
@@ -55,7 +66,7 @@ class CartItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  productInfo['description'] ?? 'No description available',
+                  productInfo['description'] ?? 'Loading description...',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -65,9 +76,7 @@ class CartItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        removeFromCart(productInfo['productId']);
-                      },
+                      onPressed: removeFromCart,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
@@ -112,10 +121,21 @@ class CartItemCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
               child: Image.network(
-                productInfo['imageUrl'],
+                productInfo['imageUrl'] ?? '',
                 fit: BoxFit.cover,
                 height: 100,
                 width: double.infinity,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
             Padding(
@@ -123,7 +143,7 @@ class CartItemCard extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    productInfo['name'],
+                    productInfo['name'] ?? 'Loading...',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
@@ -131,7 +151,7 @@ class CartItemCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${productInfo['price']} NTD',
+                    productInfo.containsKey('price') ? '${productInfo['price']} NTD' : 'Loading...',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,
@@ -140,7 +160,7 @@ class CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Quantity: ${cartItemData['quantity']}',
+                    'Quantity: ${cartItemData['quantity'] ?? '-'}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,
@@ -148,7 +168,9 @@ class CartItemCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Total Due: ${productInfo['price'] * cartItemData['quantity']}',
+                    productInfo.containsKey('price') && cartItemData.containsKey('quantity')
+                        ? 'Total Due: ${(productInfo['price'] * cartItemData['quantity']).toString()}'
+                        : 'Total Due: Loading...',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,

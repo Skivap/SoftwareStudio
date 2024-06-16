@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,63 +41,88 @@ class _ShoppingCartState extends State<ShoppingCart> {
           .timeout(timeoutDuration);
 
       if (querySnapshot.docs.isNotEmpty) {
-        setState(() {
-          cartItems = querySnapshot.docs
-              .where((doc) => doc.id != 'defaultCart')
-              .map((doc) => doc.data() as Map<String, dynamic>)
-              .toList();
-          isLoading = false;
-        });
-        await fetchProductInfo();
+        if (mounted) {
+          setState(() {
+            cartItems = querySnapshot.docs
+                .where((doc) => doc.id != 'defaultCart')
+                .map((doc) => {
+                  'cartId': doc.id,
+                  ...doc.data() as Map<String, dynamic>,
+                })
+                .toList();
+            isLoading = false;
+          });
+          await fetchProductInfo();
+        }
       } else {
-        setState(() {
-          isLoading = false;
-          errorMessage = 'No cartItems found';
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+            errorMessage = 'No cartItems found';
+          });
+        }
       }
     } on TimeoutException catch (_) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Firestore query timed out';
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Firestore query timed out';
+        });
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error fetching data from Firestore: $e';
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Error fetching data from Firestore: $e';
+        });
+      }
     }
   }
 
   Future<void> fetchProductInfo() async {
     try {
-      List productIds = cartItems.map((item) => item['productId']).toList();
+      List<String> productIds = cartItems.map((item) => item['productId'] as String).toList();
+      if (productIds.isEmpty) {
+        // If productIds is empty, update the state to reflect no products found
+        if (mounted) {
+          setState(() {
+            productInfo = {};
+          });
+        }
+        return;
+      }
+
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('products')
           .where(FieldPath.documentId, whereIn: productIds)
           .get();
       Map<String, dynamic> data = {};
-      querySnapshot.docs.forEach((doc) {
+      for (var doc in querySnapshot.docs) {
         data[doc.id] = doc.data();
-      });
-      setState(() {
-        productInfo = data;
-      });
+      }
+      if (mounted) {
+        setState(() {
+          productInfo = data;
+        });
+      }
     } catch (e) {
       print('Error fetching product data: $e');
     }
   }
 
-  void removeFromCart(String productId) async {
+  void removeFromCart(String cartId) async {
     try {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(_userId)
           .collection('cart')
-          .doc(productId)
+          .doc(cartId)
           .delete();
-      setState(() {
-        cartItems.removeWhere((item) => item['productId'] == productId);
-      });
+      if (mounted) {
+        setState(() {
+          cartItems.removeWhere((item) => item['cartId'] == cartId);
+        });
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Item removed from cart'),
@@ -113,6 +140,9 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
   @override
   Widget build(BuildContext context) {
+    double myHeight = MediaQuery.of(context).size.height;
+    //double myWidth = MediaQuery.of(context).size.width;
+
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -121,19 +151,35 @@ class _ShoppingCartState extends State<ShoppingCart> {
       return Center(child: Text(errorMessage));
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: cartItems.length,
-      itemBuilder: (context, index) {
-        Map<String, dynamic> cartItem = cartItems[index];
-        String productId = cartItem['productId'];
-        Map<String, dynamic> productData = productInfo[productId] ?? {};
-        return CartItemCard(
-          productInfo: productData,
-          cartItemData: cartItem,
-          removeFromCart: removeFromCart,
-        );
-      },
-    );
+    if (cartItems.isNotEmpty) {
+      return Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          padding: const EdgeInsets.only(top: 30),
+          height: myHeight * 0.92,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            itemCount: cartItems.length,
+            itemBuilder: (context, index) {
+              Map<String, dynamic> cartItem = cartItems[index];
+              String cartId = cartItem['cartId'];
+              String productId = cartItem['productId'];
+              Map<String, dynamic> productData = productInfo[productId] ?? {};
+              return CartItemCard(
+                productInfo: productData,
+                cartItemData: cartItem,
+                removeFromCart: () => removeFromCart(cartId),
+              );
+            },
+          ),
+        ),
+      );
+    } else {
+      return const Center(
+        child: Text(
+          'Your Shopping Cart is empty. Explore our items!',
+        ),
+      );
+    }
   }
 }

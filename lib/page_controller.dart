@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:prototype_ss/home.dart';
 import 'package:prototype_ss/views/login.dart';
 import 'package:prototype_ss/views/signup.dart';
-import 'package:prototype_ss/views/shopping_cart.dart';
 
 class PageSwitcher extends StatefulWidget {
   
@@ -24,7 +23,7 @@ class _PageSwitcher extends State<PageSwitcher> {
 
   @override
   Widget build(BuildContext context){
-    Widget page = LoginPage(changePage: changePage);;
+    Widget page = LoginPage(changePage: changePage);
 
     if(currentPage == "Login"){
       page = LoginPage(changePage: changePage);

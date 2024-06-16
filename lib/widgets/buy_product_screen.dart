@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:prototype_ss/widgets/numericStepButton.dart';
+import 'package:prototype_ss/widgets/numeric_step_button.dart';
 
 class BuyScreen extends StatefulWidget {
   final Map<String, dynamic> productData;
@@ -66,83 +66,90 @@ class _BuyScreen extends State<BuyScreen> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Trendify Buy'),
-      content: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
+      content: SizedBox(
+        width: 300,
+        height: 400,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        widget.productData['imageUrl'],
-                        fit: BoxFit.cover,
-                        height: 200,
-                        width: double.infinity,
+                    Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Image.network(
+                            widget.productData['imageUrl'],
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                            height: 100,
+                            width: 100,
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.productData['name'],
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                '${widget.productData['price']} NTD',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      widget.productData['description'] ?? 'No description provided',
+                      style: const TextStyle(
+                        fontSize: 16,
                       ),
                     ),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${widget.productData['name']}',
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '${widget.productData['price']} NTD',
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 20.0),
+                    NumericStepButton(
+                      key: UniqueKey(),
+                      minValue: 1,
+                      maxValue: widget.productData['availableStock'] ?? 10,
+                      initialValue: _quantity,
+                      onChanged: (value) {
+                        setState(() {
+                          _quantity = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _addToCart,
+                          child: const Text('Add to Cart'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                Flexible(
-                  child: Text(
-                    widget.productData['description'] ?? 'No description provided',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20,),
-                NumericStepButton(
-                  key: UniqueKey(),
-                  minValue: 1,
-                  maxValue: widget.productData['availableStock'] ?? 10,
-                  initialValue: _quantity, // Pass the initial quantity
-                  onChanged: (value) {
-                    setState(() {
-                      _quantity = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-      actions: _isLoading
-          ? null // Disable buttons while loading
-          : [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
               ),
-              ElevatedButton(
-                onPressed: _addToCart,
-                child: const Text('Add to Cart'),
-              ),
-            ],
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:prototype_ss/widgets/product_page.dart';
 
 List<String> itemList = ['One', 'Two', 'Three', 'Four','One', 'Two', 'Three'];
 
-Widget search_page(BuildContext context) {
+Widget searchPage(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.only(
       left: 8.0,
@@ -32,6 +32,7 @@ Widget search_page(BuildContext context) {
   );
 }
 
+// ignore: non_constant_identifier_names
 Widget Search_Bar(){
   return SearchAnchor(
     builder: (BuildContext context, SearchController controller) {

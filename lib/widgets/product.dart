@@ -6,10 +6,10 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({super.key, required this.productData});
 
-  void _showProductDetails(BuildContext context){
+  void _showProductDetails(BuildContext context) {
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
-      context: context, 
+      context: context,
       builder: (context) {
         return FractionallySizedBox(
           heightFactor: 0.9,
@@ -23,29 +23,30 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     child: Image.network(
                       productData['imageUrl'],
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                       fit: BoxFit.cover,
                       height: 200,
                       width: double.infinity,
-                    )
-                  )
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(height: 10),
                 Text(
                   productData['name'],
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold
-                  )
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(height: 10),
                 Text(
                   '${productData['price']} NTD',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold
-                  )
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -56,27 +57,28 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () => {
+                  onPressed: () { // Close the bottom sheet
                     showDialog(
-                      context: context, 
+                      context: context,
                       builder: (context) => BuyScreen(productData: productData),
-                    )
-                  }, 
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple
+                    backgroundColor: Colors.purple,
                   ),
-                  child: const Text( 
+                  child: const Text(
                     'Buy',
                     style: TextStyle(
-                      color: Colors.white
+                      color: Colors.white,
                     ),
-                  )
-                )
+                  ),
+                ),
               ],
-            )
+            ),
           ),
         );
-      });
+      },
+    );
   }
 
   @override
@@ -106,6 +108,7 @@ class ProductCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
               child: Image.network(
                 productData['imageUrl'],
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                 fit: BoxFit.cover,
                 height: 100,
                 width: double.infinity,
@@ -124,7 +127,7 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${productData['availableStock']} NTD',
+                    '${productData['price']} NTD',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 14,
