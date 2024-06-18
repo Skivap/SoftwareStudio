@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/widgets/product.dart';
 
-
 class ProductPage extends StatelessWidget {
   final Axis scrollDirection;
-
-  const ProductPage({super.key, this.scrollDirection = Axis.vertical});
+  final String searchQuery;
+  const ProductPage({super.key, this.scrollDirection = Axis.vertical, this.searchQuery = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +25,13 @@ class ProductPage extends StatelessWidget {
               data['productId'] = doc.id;
               return data;
             }).toList();
+
+            if (searchQuery.isNotEmpty) {
+              products = products.where((product) {
+                return product['name'].toLowerCase().contains(searchQuery.toLowerCase()) ||
+                       product['description'].toLowerCase().contains(searchQuery.toLowerCase());
+              }).toList();
+            }
 
             return GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),

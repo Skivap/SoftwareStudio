@@ -13,6 +13,7 @@ final messages = [
     ChatData(username:"@diy_designs", message:"my first handmade skirt!", date:"2024/4/15")
 ];
 class ChatPage extends StatelessWidget {
+
   const ChatPage({super.key});
 
   @override
@@ -45,7 +46,7 @@ class ChatPage extends StatelessWidget {
                   endIndent: 0,
                   color: Colors.black,
                 ),
-                Search_Bar(),
+                buildSearchBar(context, (fn) { }),
                 
                 Column(
                   children:messages.asMap().entries.map((entry){
