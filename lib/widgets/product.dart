@@ -24,13 +24,13 @@ class ProductCard extends StatelessWidget {
                     child: Image.network(
                       productData['imageUrl'],
                       errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       height: 200,
                       width: double.infinity,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 40),
                 Text(
                   productData['name'],
                   textAlign: TextAlign.center,
@@ -101,8 +101,7 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
@@ -110,28 +109,36 @@ class ProductCard extends StatelessWidget {
                 productData['imageUrl'],
                 errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                 fit: BoxFit.cover,
-                height: 100,
+                height: double.infinity,
                 width: double.infinity,
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.black.withOpacity(0.3), // Optional: Add overlay for better text visibility
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     productData['name'],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white, // Make text color white for better contrast
                     ),
                   ),
                   Text(
                     '${productData['price']} NTD',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                      fontSize: 20,
+                      color: Colors.white, // Make text color white for better contrast
                     ),
                   ),
                 ],
