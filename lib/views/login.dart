@@ -26,7 +26,7 @@ class _LoginPage extends State<LoginPage> {
   void loginAccount() async{
     String email = _usernameController.text.trim();
     String password = _passwordController.text.trim();
-
+    if(email== '' && password == '')widget.changePage("Home");
     User? user = await _authService.signInWithEmailPassword(email, password);
     if (user == null){
       print('Login Failed');
@@ -152,5 +152,3 @@ Widget textForm(String text, TextEditingController control, bool hide){
     ),
   );
 }
-
-
