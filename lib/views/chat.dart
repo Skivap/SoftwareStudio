@@ -20,8 +20,12 @@ class ChatPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title:Text(
+        title:
+        Column(
+          children: [
+            Transform.translate(
+              offset: const Offset(0, 10),
+              child: const Text(
                 'Chat',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -29,23 +33,37 @@ class ChatPage extends StatelessWidget {
                   fontSize: 32,
                   fontFamily: 'Abhaya Libre SemiBold',
                   fontWeight: FontWeight.w600,
-                  height: 0.02,
+                  height: 3,
                   letterSpacing: -0.41,
                 ),
               ),
-      ),
+            ),
+            Transform.translate(
+              offset: const Offset(0, -20),
+              child: const Divider(
+                height: 20,
+                thickness: 3,
+                indent: 0,
+                endIndent: 0,
+                color: Colors.black,
+              ),
+            ), 
+          ]
+        )
+        ),
       body:
       Padding(
             padding:EdgeInsets.fromLTRB(20.0,10.0,20.0, 10.0),
-            child:Column(
+            child:
+            Column(
               children: [
-                Divider(
-                  height: 20,
-                  thickness: 1,
-                  indent: 0,
-                  endIndent: 0,
-                  color: Colors.black,
-                ),
+                  // Divider(
+                  //   height: 20,
+                  //   thickness: 1,
+                  //   indent: 0,
+                  //   endIndent: 0,
+                  //   color: Colors.black,
+                  // ),
                 buildSearchBar(context, (fn) { }),
                 
                 Column(

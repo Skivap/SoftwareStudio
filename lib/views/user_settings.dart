@@ -97,130 +97,164 @@ class _UserSettingsState extends State<UserSettings> {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
 
-    return Padding(
-      padding: EdgeInsets.all(myWidth * 0.02),
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            height: myHeight * 0.125,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Flexible(
-                  child: Image.network(
-                    imageLink,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 40),
-                    fit: BoxFit.cover,
-                    height: 200,
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title:
+        Column(
+          children: [
+            Transform.translate(
+              offset: const Offset(0, 10),
+              child: const Text(
+                'Account',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 32,
+                  fontFamily: 'Abhaya Libre SemiBold',
+                  fontWeight: FontWeight.w600,
+                  height: 3,
+                  letterSpacing: -0.41,
                 ),
-                const SizedBox(width: 10,),
-                SizedBox(
-                  width: myWidth * 0.4,
-                  child: Text(
-                    username,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(0, -20),
+              child: const Divider(
+                height: 20,
+                thickness: 3,
+                indent: 0,
+                endIndent: 0,
+                color: Colors.black,
+              ),
+            ), 
+          ]
+        )
+        ),
+      body: Padding(
+        padding: EdgeInsets.all(myWidth * 0.02),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              height: myHeight * 0.125,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Image.network(
+                      imageLink,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 40),
+                      fit: BoxFit.cover,
+                      height: 200,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height:20),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () => {
-
-                  },
-                  child: const Column(
-                    children: [Icon(Icons.wallet, size: 20,), Text('To Pay')]
+                  const SizedBox(width: 10,),
+                  SizedBox(
+                    width: myWidth * 0.4,
+                    child: Text(
+                      username,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                      ),
+                    ),
                   ),
-                ),
-                InkWell(
-                  onTap: () => {
-
-                  },
-                  child: const Column(
-                    children: [Icon(Icons.warehouse_rounded, size: 20,), Text('To Ship')]
-                  ),
-                ),
-                InkWell(
-                  onTap: () => {
-
-                  },
-                  child: const Column(
-                    children: [Icon(Icons.local_shipping_rounded, size: 20,), Text('To Receive')
-                    ]
-                  ),
-                ),
-                InkWell(
-                  onTap: () => {
-
-                  },
-                  child: const Column(
-                    children: [Icon(Icons.rate_review_rounded, size: 20,), Text('To Rate')]
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height:20),
-          ListTile(
-              leading: const Icon(Icons.account_circle),
-              title: const Text('Account'),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettings()));
-              },
-            ),
+            const SizedBox(height:20),
+            // Center(
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //     crossAxisAlignment: CrossAxisAlignment.center,
+            //     children: [
+            //       InkWell(
+            //         onTap: () => {
+      
+            //         },
+            //         child: const Column(
+            //           children: [Icon(Icons.wallet, size: 20,), Text('To Pay')]
+            //         ),
+            //       ),
+            //       InkWell(
+            //         onTap: () => {
+      
+            //         },
+            //         child: const Column(
+            //           children: [Icon(Icons.warehouse_rounded, size: 20,), Text('To Ship')]
+            //         ),
+            //       ),
+            //       InkWell(
+            //         onTap: () => {
+      
+            //         },
+            //         child: const Column(
+            //           children: [Icon(Icons.local_shipping_rounded, size: 20,), Text('To Receive')
+            //           ]
+            //         ),
+            //       ),
+            //       InkWell(
+            //         onTap: () => {
+      
+            //         },
+            //         child: const Column(
+            //           children: [Icon(Icons.rate_review_rounded, size: 20,), Text('To Rate')]
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            const SizedBox(height:20),
             ListTile(
-              leading: const Icon(Icons.notifications),
-              title: const Text('Notifications'),
-              onTap: () {
-
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: const Text('Appearance'),
-              onTap: () {
-
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock),
-              title: const Text('Privacy & Security'),
-              onTap: () {
-
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.help),
-              title: const Text('Help and Support'),
-              onTap: () {
-
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('About'),
-              onTap: () {
-
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: _logout,
-            ),
-        ],
+                leading: const Icon(Icons.account_circle),
+                title: const Text('Account'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettings()));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.notifications),
+                title: const Text('Notifications'),
+                onTap: () {
+      
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.color_lens),
+                title: const Text('Appearance'),
+                onTap: () {
+      
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.lock),
+                title: const Text('Privacy & Security'),
+                onTap: () {
+      
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.help),
+                title: const Text('Help and Support'),
+                onTap: () {
+      
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text('About'),
+                onTap: () {
+      
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: _logout,
+              ),
+          ],
+        ),
       ),
     );
   }

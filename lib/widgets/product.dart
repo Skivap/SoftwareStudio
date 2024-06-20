@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/buy_product_screen.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final Map<String, dynamic> productData;
+  final void Function(int) select_idx;
+  final int id_item;
 
-  const ProductCard({super.key, required this.productData});
+  const ProductCard({
+    Key? key,
+    required this.productData,
+    required this.select_idx,
+    required this.id_item,
+  }) : super(key: key);
 
-  void _showProductDetails(BuildContext context) {
+  @override
+  _ProductCardState createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+
+  void _showProductDetails(BuildContext context, Map<String, dynamic> productData) {
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
       context: context,
@@ -83,28 +96,21 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> productData = widget.productData;
+    void Function(int) select_idx = widget.select_idx;
+    int id_item = widget.id_item;
+
     return InkWell(
       onTap: () {
-        _showProductDetails(context);
+        select_idx(id_item);
+        // _showProductDetails(context);
       },
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(1.0),
         child: Stack(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
+              // borderRadius: BorderRadius.circular(10.0),
               child: Image.network(
                 productData['imageUrl'],
                 errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
@@ -115,29 +121,29 @@ class ProductCard extends StatelessWidget {
             ),
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.black.withOpacity(0.3), // Optional: Add overlay for better text visibility
+                // borderRadius: BorderRadius.circular(10.0),
+                color: Colors.black.withOpacity(0.5), // Optional: Add overlay for better text visibility
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     productData['name'],
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.left,
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white, // Make text color white for better contrast
                     ),
                   ),
                   Text(
                     '${productData['price']} NTD',
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.left,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 12,
                       color: Colors.white, // Make text color white for better contrast
                     ),
                   ),

@@ -22,19 +22,31 @@ class _PageSwitcher extends State<PageSwitcher> {
   }
 
   @override
-  Widget build(BuildContext context){
-    Widget page = LoginPage(changePage: changePage);
+  Widget build(BuildContext context) {
+    Widget page;
 
-    if(currentPage == "Login"){
-      page = LoginPage(changePage: changePage);
+    switch (currentPage) {
+      case "Login":
+        page = LoginPage(changePage: changePage);
+        break;
+      case "SignUp":
+        page = SignUpPage(changePage: changePage);
+        break;
+      case "Home":
+        page = HomePage(changePage: changePage);
+        break;
+      default:
+        page = LoginPage(changePage: changePage);
+        break;
     }
-    else if (currentPage == "SignUp"){
-      page = SignUpPage(changePage: changePage);
-    }
-    else if(currentPage == "Home"){
-      page = HomePage(changePage: changePage);
-    }
-    
-    return page;
+
+    return MaterialApp(
+      home: Scaffold(
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          child: page,
+        ),
+      ),
+    );
   }
 }
