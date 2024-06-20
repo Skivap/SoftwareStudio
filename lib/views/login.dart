@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
+import 'package:flutter/gestures.dart';
 
 class LoginPage extends StatefulWidget {
   
@@ -87,7 +91,7 @@ class _LoginPage extends State<LoginPage> {
                   child: TextButton(
                     onPressed: loginAccount,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(16), 
+                      padding: const EdgeInsets.all(12), 
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3),
                       ),
@@ -99,8 +103,6 @@ class _LoginPage extends State<LoginPage> {
                       padding: EdgeInsets.only(
                         left: 20,
                         right: 20,
-                        top: 6,
-                        bottom: 6
                       ),
                       child: Text(
                         'Login',
@@ -116,19 +118,29 @@ class _LoginPage extends State<LoginPage> {
 
                 const SizedBox(height: 40.0),
 
-                ElevatedButton(
-                  onPressed: () => {
-                    widget.changePage("SignUp")
-                  },
-                  child: const Text(
-                    "Don't have an account yet? Sign Up!"
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: 'Don\'t have an account? ',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'Sign Up',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () { widget.changePage("SignUp"); }
+                      )
+                    ],
                   ),
-                ),
+                )
               ],
             ),
           ),
         );
-
 
   }
 }

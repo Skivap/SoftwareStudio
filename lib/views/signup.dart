@@ -107,7 +107,7 @@ class _SignUpPageState extends State<SignUpPage> {
               child: TextButton(
                 onPressed: signUpAccount,
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(3),
                   ),
@@ -118,8 +118,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   padding: EdgeInsets.only(
                     left: 20,
                     right: 20,
-                    top: 6,
-                    bottom: 6,
                   ),
                   child: Text(
                     'Sign Up',
