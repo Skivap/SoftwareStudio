@@ -30,7 +30,7 @@ class CartItemCard extends StatelessWidget {
                     child: Image.network(
                       productInfo['imageUrl'] ?? '',
                       fit: BoxFit.cover,
-                      height: 200,
+                      height: 450,
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                       loadingBuilder: (context, child, loadingProgress) {

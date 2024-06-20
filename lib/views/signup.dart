@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
@@ -36,6 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
         print('Sign Up Failed');
       } else {
         print('Sign Up Successful: ${user.uid}');
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({'name': name,});
         widget.changePage("Home");
       }
     } catch (e, stackTrace) {

@@ -12,9 +12,10 @@ function generateIdempotencyKey(userId) {
 exports.createUserDocument = functions.auth.user().onCreate(async (user) => {
     const userId = user.uid;
     const email = user.email;
-    const displayName = user.displayName || '';
+
+    const displayName = user.displayName || (user.customClaims && user.customClaims.name) || '';
+
     const idempotencyKey = generateIdempotencyKey(userId);
-    
     const idempotencyRef = admin.firestore().collection('idempotencyKeys').doc(idempotencyKey);
     const userRef = admin.firestore().collection('users').doc(userId);
 

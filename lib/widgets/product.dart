@@ -25,7 +25,7 @@ class ProductCard extends StatelessWidget {
                       productData['imageUrl'],
                       errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                       fit: BoxFit.fill,
-                      height: 200,
+                      height: 450,
                       width: double.infinity,
                     ),
                   ),

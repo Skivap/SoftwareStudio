@@ -5,7 +5,18 @@ import 'package:prototype_ss/widgets/product.dart';
 class ProductPage extends StatelessWidget {
   final Axis scrollDirection;
   final String searchQuery;
-  const ProductPage({super.key, this.scrollDirection = Axis.vertical, this.searchQuery = ''});
+  final List<String> categoryFilters;
+  final List<String> styleFilters;
+  final List<String> seasonFilters;
+
+  const ProductPage({
+    super.key, 
+    this.scrollDirection = Axis.vertical, 
+    this.searchQuery = '', 
+    this.categoryFilters = const [], 
+    this.styleFilters = const [], 
+    this.seasonFilters = const []
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +41,22 @@ class ProductPage extends StatelessWidget {
               products = products.where((product) {
                 return product['name'].toLowerCase().contains(searchQuery.toLowerCase()) ||
                        product['description'].toLowerCase().contains(searchQuery.toLowerCase());
+              }).toList();
+            }
+
+            if (categoryFilters.isNotEmpty) {
+              products = products.where((product) {
+                return categoryFilters.contains(product['category']);
+              }).toList();
+            }
+            if (styleFilters.isNotEmpty) {
+              products = products.where((product) {
+                return styleFilters.contains(product['style']);
+              }).toList();
+            }
+            if (seasonFilters.isNotEmpty) {
+              products = products.where((product) {
+                return seasonFilters.contains(product['season']);
               }).toList();
             }
 
