@@ -53,9 +53,9 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
             label: 'Search',
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart),
+            icon: Icon(Icons.checkroom_rounded),
             // icon: Badge(child: Icon(Icons.shopping_cart)),
-            label: 'Cart',
+            label: 'Wardrobe',
           ),
           NavigationDestination(
             icon: Icon(Icons.messenger_sharp),

@@ -94,7 +94,7 @@ class _ProductPageState extends State<ProductPage> {
                   selectIdx: selectItemIndex,
                   idItem: index,
                 );
-      }).toList(),
+              }).toList(),
             );
           }
         ),

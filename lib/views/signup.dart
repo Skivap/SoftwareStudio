@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
+import 'package:prototype_ss/widgets/error_dialog.dart';
 
 class SignUpPage extends StatefulWidget {
   final void Function(String) changePage;
@@ -28,20 +29,20 @@ class _SignUpPageState extends State<SignUpPage> {
     String name = _nameController.text.trim();
 
     if (password != confirmPassword) {
-      print('Passwords do not match');
+      showErrorDialog(context, 'Passwords don\'t match!');
       return;
     }
     try {
       User? user = await _authService.signUpWithEmailPassword(email, password, name);
       if (user == null) {
-        print('Sign Up Failed');
+        showErrorDialog(context, 'Sing up failed');
       } else {
         print('Sign Up Successful: ${user.uid}');
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({'name': name,});
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'name': name});
         widget.changePage("Home");
       }
     } catch (e, stackTrace) {
-      print('Sign Up Error: $e');
+      showErrorDialog(context, 'Sing up failed');
       print('Stack trace: $stackTrace');
     }
   }

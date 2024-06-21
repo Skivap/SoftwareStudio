@@ -54,7 +54,7 @@ class _AccountSettings extends State<AccountSettings> {
           setState(() {
             username = querySnapshot.data()?['name'] ?? '';
             imageLink = querySnapshot.data()?['imageLink'] ?? '';
-            gender = querySnapshot.data()?['gender'] ?? 'Male'; // Default to 'Male' if null
+            gender = querySnapshot.data()?['gender'] ?? 'Male';
             email = querySnapshot.data()?['email'] ?? '';
             phone = querySnapshot.data()?['phone'] ?? '';
             //birthday = (querySnapshot.data()?['birthday'] as Timestamp).toDate() ?? birthday;
@@ -118,7 +118,7 @@ class _AccountSettings extends State<AccountSettings> {
   }
 
   Widget buildTextField(
-      String labelText, TextEditingController controller, bool isDate, bool isEditable) {
+      String labelText, TextEditingController controller, String hintText, bool isEditable) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: TextField(
@@ -128,7 +128,7 @@ class _AccountSettings extends State<AccountSettings> {
           contentPadding: const EdgeInsets.only(bottom: 5),
           labelText: labelText,
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          hintText: controller.text,
+          hintText: hintText,
           hintStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -159,7 +159,7 @@ class _AccountSettings extends State<AccountSettings> {
           children: [
             Container(
               height: myHeight * 0.18,
-              decoration: const BoxDecoration(color: Colors.orange),
+              decoration: const BoxDecoration(color: Color.fromRGBO(244, 40, 53, 32)),
               child: Stack(
                 children: [
                   Align(
@@ -199,7 +199,7 @@ class _AccountSettings extends State<AccountSettings> {
                             width: 4,
                             color: Theme.of(context).scaffoldBackgroundColor,
                           ),
-                          color: Colors.orange,
+                          color: Color.fromRGBO(244, 40, 53, 32),
                         ),
                         child: const Icon(
                           Icons.edit,
@@ -216,11 +216,11 @@ class _AccountSettings extends State<AccountSettings> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  buildTextField("Name", _nameController, false, false),
+                  buildTextField("Name", _nameController, username, false),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: DropdownButtonFormField<String>(
-                      value: gender.isNotEmpty ? gender : null, // Ensure gender is not empty
+                      value: gender.isNotEmpty ? gender : null,
                       items: ['Male', 'Female', 'Other']
                           .map((label) => DropdownMenuItem(
                                 value: label,
@@ -244,8 +244,8 @@ class _AccountSettings extends State<AccountSettings> {
                       ),
                     ),
                   ),
-                  buildTextField("Email", _emailController, false, true),
-                  buildTextField("Phone", _phoneController, false, false),
+                  buildTextField("Email", _emailController, email, true),
+                  buildTextField("Phone", _phoneController, '', false),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -272,7 +272,7 @@ class _AccountSettings extends State<AccountSettings> {
                       ElevatedButton(
                         onPressed: updateUserInfo,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: Color.fromRGBO(244, 40, 53, 32),
                           padding: const EdgeInsets.symmetric(horizontal: 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),

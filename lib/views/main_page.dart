@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prototype_ss/widgets/product_page.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 var headerStyle = const TextStyle(
   fontWeight: FontWeight.bold,
@@ -31,6 +32,7 @@ class _MainPage extends State<MainPage> {
   late PageController _bannerPageController;
   late Timer _bannerTimer;
   int _currentBannerPage = 0;
+  File? _pickedImage;
 
   @override
   void initState() {
@@ -58,6 +60,84 @@ class _MainPage extends State<MainPage> {
     _bannerPageController.dispose();
   }
 
+  Future<void> pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null){
+      setState(() {
+        _pickedImage = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<String?> uploadImage(File image) async {
+     try {
+       String filename = DateTime.now().millisecondsSinceEpoch.toString();
+       Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
+       UploadTask uploadTask = storageRef.putFile(image);
+       await uploadTask.whenComplete(() {});
+       return await storageRef.getDownloadURL();
+    } catch(e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  void addProduct() async {
+    String productName = _productNameController.text.trim();
+    String productPrice = _productPriceController.text.trim();
+    String productDescription = _productDescriptionController.text.trim();
+    //String productImageUrl = _productImageUrlController.text.trim();
+    User? user = FirebaseAuth.instance.currentUser;
+    String? userId = user?.uid ?? '';
+
+    if (productName.isNotEmpty &&
+        productPrice.isNotEmpty &&
+        productDescription.isNotEmpty && 
+        _pickedImage != null){
+        //productImageUrl.isNotEmpty) {
+      try {
+        String? imageUrl = await uploadImage(_pickedImage!);
+        if (imageUrl != null) {
+          await _firestore.collection('products').add({
+            'sellerId': userId,
+            'name': productName,
+            'price': double.parse(productPrice),
+            'description': productDescription,
+            'imageUrl': imageUrl,
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product Added Successfully')),
+          );
+          Navigator.pop(context);
+
+          _productNameController.clear();
+          _productPriceController.clear();
+          _productDescriptionController.clear();
+          _productImageUrlController.clear();
+          setState(() {
+            _pickedImage = null;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to upload Image'))
+          );
+        }
+      } catch (e) {
+        print('Error adding product: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add product $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+    }
+  }
+
   void showProductForm(BuildContext context) {
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
@@ -69,29 +149,53 @@ class _MainPage extends State<MainPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                _pickedImage == null
+                      ? GestureDetector(
+                          onTap: pickImage,
+                          child: Container(
+                            height: 250,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.image,
+                                size: 200,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: pickImage,
+                          child: Image.file(
+                            _pickedImage!,
+                            height: 250,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                 TextField(
                   controller: _productNameController,
-                  decoration: InputDecoration(labelText: 'Product Name'),
+                  decoration: const InputDecoration(labelText: 'Product Name'),
                 ),
                 TextField(
                   controller: _productPriceController,
-                  decoration: InputDecoration(labelText: 'Product Price'),
+                  decoration: const InputDecoration(labelText: 'Product Price'),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: _productDescriptionController,
-                  decoration: InputDecoration(labelText: 'Product Description'),
+                  decoration: const InputDecoration(labelText: 'Product Description'),
                 ),
-                TextField(
-                  controller: _productImageUrlController,
-                  decoration: InputDecoration(labelText: 'Image URL'),
-                ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: addProduct,
-                  child: Text('Add Product'),
+                  child: const Text('Add Product'),
                 ),
               ],
             ),
@@ -101,110 +205,70 @@ class _MainPage extends State<MainPage> {
     );
   }
 
-  void addProduct() async {
-    String productName = _productNameController.text.trim();
-    String productPrice = _productPriceController.text.trim();
-    String productDescription = _productDescriptionController.text.trim();
-    String productImageUrl = _productImageUrlController.text.trim();
-    User? user = FirebaseAuth.instance.currentUser;
-    String? userId = user?.uid ?? '';
-
-    if (productName.isNotEmpty &&
-        productPrice.isNotEmpty &&
-        productDescription.isNotEmpty &&
-        productImageUrl.isNotEmpty) {
-      try {
-        await _firestore.collection('products').add({
-          'sellerId': userId,
-          'name': productName,
-          'price': double.parse(productPrice),
-          'description': productDescription,
-          'imageUrl': productImageUrl,
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Product Added Successfully')),
-        );
-        Navigator.pop(context); // Close the bottom sheet
-
-        // Clear the input fields after adding the product
-        _productNameController.clear();
-        _productPriceController.clear();
-        _productDescriptionController.clear();
-        _productImageUrlController.clear();
-      } catch (e) {
-        print('Error adding product: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add product $e')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              width: myWidth,
-              height: myHeight * 0.15,
-              child: PageView.builder(
-                controller: _bannerPageController,
-                itemCount: banners.length,
-                itemBuilder: (context, index) {
-                  return Image.asset(
-                    'assets/images/banners/${banners[index]}.jpg',
-                    fit: BoxFit.fill,
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                'Recommended For You ',
-                style: headerStyle,
-              ),
-            ),
-            SizedBox(
-              height: myHeight * 0.3,
-              child: ProductPage(scrollDirection: Axis.horizontal),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text(
-                'Trending Styles',
-                style: headerStyle,
-              ),
-            ),
-            SizedBox(
-              height: myHeight * 0.3,
-              child: ProductPage(scrollDirection: Axis.horizontal),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+          child:
+            Column(
               children: [
-                FloatingActionButton(
-                  onPressed: () {
-                    showProductForm(context);
-                  },
-                  child: Icon(Icons.add),
-                  backgroundColor: Colors.blue,
-                )
+                SizedBox(
+                  width: myWidth,
+                  height: myHeight * 0.15,
+                  child: PageView.builder(
+                    controller: _bannerPageController,
+                    itemCount: banners.length,
+                    itemBuilder: (context, index) {
+                      return Image.asset(
+                        'assets/images/banners/${banners[index]}.jpg',
+                        fit: BoxFit.fill,
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    'Recommended For You ',
+                    style: headerStyle,
+                  ),
+                ),
+                SizedBox(
+                  height: myHeight * 0.3,
+                  child: const ProductPage(scrollDirection: Axis.horizontal),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    'Trending Styles',
+                    style: headerStyle,
+                  ),
+                ),
+                SizedBox(
+                  height: myHeight * 0.3,
+                  child: const ProductPage(scrollDirection: Axis.horizontal),
+                ),
+                const SizedBox(height: 25),
               ],
             ),
-            SizedBox(height: 20),
-          ],
-        ),
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child:FloatingActionButton(
+              onPressed: () {
+                showProductForm(context);
+              },
+              backgroundColor: const Color.fromRGBO(244, 40, 53, 32),
+              child: const Icon(Icons.add),
+            )
+          )
+        ]
       ),
     );
   }

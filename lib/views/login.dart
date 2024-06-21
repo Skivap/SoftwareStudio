@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
 import 'package:flutter/gestures.dart';
+import 'package:prototype_ss/widgets/error_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   
@@ -33,8 +31,7 @@ class _LoginPage extends State<LoginPage> {
     if(email== '' && password == '')widget.changePage("Home");
     User? user = await _authService.signInWithEmailPassword(email, password);
     if (user == null){
-      print('Login Failed');
-      // mau tambah showDialog nanti
+      showErrorDialog(context, 'Login failed, email or password might be wrong');
     }
     else {
       widget.changePage("Home");
