@@ -28,36 +28,34 @@ class _MainPage extends State<MainPage> {
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   final TextEditingController _productDescriptionController = TextEditingController();
-  final TextEditingController _productImageUrlController = TextEditingController();
+  final TextEditingController _productLinkUrlController = TextEditingController();
   late PageController _bannerPageController;
-  late Timer _bannerTimer;
-  int _currentBannerPage = 0;
+  
   File? _pickedImage;
 
   @override
   void initState() {
     super.initState();
-    _bannerPageController = PageController(initialPage: 0);
-    _bannerTimer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
-      if (_currentBannerPage < banners.length - 1) {
-        _currentBannerPage++;
-      } else {
-        _currentBannerPage = 0;
-      }
+    // _bannerPageController = PageController(initialPage: 0);
+    // _bannerTimer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
+    //   if (_currentBannerPage < banners.length - 1) {
+    //     _currentBannerPage++;
+    //   } else {
+    //     _currentBannerPage = 0;
+    //   }
 
-      _bannerPageController.animateToPage(
-        _currentBannerPage,
-        duration: const Duration(milliseconds: 900),
-        curve: Curves.easeInOut,
-      );
-    });
+    //   _bannerPageController.animateToPage(
+    //     _currentBannerPage,
+    //     duration: const Duration(milliseconds: 900),
+    //     curve: Curves.easeInOut,
+    //   );
+    // });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _bannerTimer.cancel();
-    _bannerPageController.dispose();
+
   }
 
   Future<void> pickImage() async {
@@ -88,6 +86,7 @@ class _MainPage extends State<MainPage> {
     String productName = _productNameController.text.trim();
     String productPrice = _productPriceController.text.trim();
     String productDescription = _productDescriptionController.text.trim();
+    String productLink = _productLinkUrlController.text.trim();
     //String productImageUrl = _productImageUrlController.text.trim();
     User? user = FirebaseAuth.instance.currentUser;
     String? userId = user?.uid ?? '';
@@ -95,7 +94,8 @@ class _MainPage extends State<MainPage> {
     if (productName.isNotEmpty &&
         productPrice.isNotEmpty &&
         productDescription.isNotEmpty && 
-        _pickedImage != null){
+        _pickedImage != null &&
+        productLink.isNotEmpty){
         //productImageUrl.isNotEmpty) {
       try {
         String? imageUrl = await uploadImage(_pickedImage!);
@@ -106,6 +106,9 @@ class _MainPage extends State<MainPage> {
             'price': double.parse(productPrice),
             'description': productDescription,
             'imageUrl': imageUrl,
+            'link' : productLink,
+            'comment_count':0,
+
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +119,7 @@ class _MainPage extends State<MainPage> {
           _productNameController.clear();
           _productPriceController.clear();
           _productDescriptionController.clear();
-          _productImageUrlController.clear();
+          _productLinkUrlController.clear();
           setState(() {
             _pickedImage = null;
           });
@@ -192,6 +195,10 @@ class _MainPage extends State<MainPage> {
                   controller: _productDescriptionController,
                   decoration: const InputDecoration(labelText: 'Product Description'),
                 ),
+                TextField(
+                  controller: _productLinkUrlController,
+                  decoration: const InputDecoration(labelText: 'Product Link'),
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: addProduct,
@@ -210,65 +217,67 @@ class _MainPage extends State<MainPage> {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-          child:
-            Column(
-              children: [
-                SizedBox(
-                  width: myWidth,
-                  height: myHeight * 0.15,
-                  child: PageView.builder(
-                    controller: _bannerPageController,
-                    itemCount: banners.length,
-                    itemBuilder: (context, index) {
-                      return Image.asset(
-                        'assets/images/banners/${banners[index]}.jpg',
-                        fit: BoxFit.fill,
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Recommended For You ',
-                    style: headerStyle,
-                  ),
-                ),
-                SizedBox(
-                  height: myHeight * 0.3,
-                  child: const ProductPage(scrollDirection: Axis.horizontal),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Trending Styles',
-                    style: headerStyle,
-                  ),
-                ),
-                SizedBox(
-                  height: myHeight * 0.3,
-                  child: const ProductPage(scrollDirection: Axis.horizontal),
-                ),
-                const SizedBox(height: 25),
-              ],
+    return Container(
+      child: Scaffold(
+         appBar: AppBar(
+          backgroundColor: Colors.black,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundImage: AssetImage('assets/images/logo.png'), // Your profile image asset
             ),
           ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child:FloatingActionButton(
-              onPressed: () {
-                showProductForm(context);
-              },
-              backgroundColor: const Color.fromRGBO(244, 40, 53, 32),
-              child: const Icon(Icons.add),
+          title: Text(
+            'Trendify',
+            style: TextStyle(
+              fontFamily: 'Billabong', // Use the Instagram font
+              fontSize: 32,
+              color: Colors.white
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add_box_outlined),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.favorite_border),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.send_outlined),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+            child:
+              Column(
+                children: [
+                  
+                  
+                  SizedBox(
+                    height: myHeight*2,
+                    child: const ProductPage(scrollDirection: Axis.vertical),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child:FloatingActionButton(
+                onPressed: () {
+                  showProductForm(context);
+                },
+                backgroundColor: const Color.fromRGBO(244, 40, 53, 32),
+                child: const Icon(Icons.add),
+              )
             )
-          )
-        ]
+          ]
+        ),
       ),
     );
   }

@@ -103,6 +103,8 @@ Widget searchPage(BuildContext context) {
                 const SizedBox(height: 10),
                 Expanded(
                   child: ProductPage(
+                    mode: 1,
+                    rows: 3,
                     searchQuery: _searchQuery,
                     categoryFilters: _selectedCategoryFilters,
                     styleFilters: _selectedStyleFilters,

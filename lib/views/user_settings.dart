@@ -27,10 +27,10 @@ class _UserSettingsState extends State<UserSettings> {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     userId = user?.uid ?? '';
-    getUserInfo();
+    getUserInfo(userId);
   }
 
-  void getUserInfo() async {
+  void getUserInfo(String? userId) async {
     try {
       const Duration timeoutDuration = Duration(seconds: 10);
       DocumentSnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
