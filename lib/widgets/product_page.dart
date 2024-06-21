@@ -85,6 +85,8 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    double myHeight = MediaQuery.of(context).size.height;
+
     final productsProvider = Provider.of<ProductsProvider>(context);
     var products = productsProvider.products;
     return Container(
@@ -103,6 +105,7 @@ class _ProductPageState extends State<ProductPage> {
                 crossAxisCount: widget.rows,
                 crossAxisSpacing: 0.0,
                 mainAxisSpacing: 0.0,
+                
               ),
               itemCount: products.length,
               itemBuilder: (BuildContext context, int index) {

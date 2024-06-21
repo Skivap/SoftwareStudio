@@ -1,9 +1,10 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/model/product_model.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
-import 'package:prototype_ss/widgets/buy_product_screen.dart';
+import 'package:prototype_ss/service/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
@@ -21,16 +22,40 @@ class ProductContent extends StatefulWidget {
 }
 
 class _ProductState extends State<ProductContent> {
+  
+  final FirestoreService _firestoreService = FirestoreService();
   String imageLink = '';
   String username = '';
-
+  late int likes;
+  late bool isLiked;
   @override
   void initState() {
     super.initState();
-    
+    likes = widget.productData.likes;
+    isLiked = widget.productData.likedby.contains(FirebaseAuth.instance.currentUser?.uid);
+    print(
+      '$isLiked and $likes'
+    );
     getUserInfo(widget.productData.sellerID);
   }
+  void _toggleLike() async {
+    
+    await _firestoreService.likePost(widget.productData.id,isLiked);
 
+    if (!isLiked) {
+      setState(() {
+        isLiked = true;
+        likes += 1;
+      });
+    }
+    else{
+      setState(() {
+        isLiked = false;
+        likes -= 1;
+      });
+    }
+  
+  }
   void getUserInfo(String userId) async {
     
     try {
@@ -69,12 +94,14 @@ class _ProductState extends State<ProductContent> {
   @override
   Widget build(BuildContext context) {
     Product productData = widget.productData;
-
+    double myWidth = MediaQuery.of(context).size.width;
+    double myHeight = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: () {
         
       },
       child: Container(
+        height: myHeight,
         color: Colors.black,
         padding: const EdgeInsets.all(1.0),
         child: Column(
@@ -99,7 +126,18 @@ class _ProductState extends State<ProductContent> {
               ),
             ),
             const SizedBox(height: 8.0),
-            Expanded(
+            
+              // child: ClipRRect(
+              //   borderRadius: BorderRadius.circular(10.0),
+              //   child: Image.network(
+              //     productData.imageUrl,
+              //     errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+              //     fit: BoxFit.cover,
+              //     width: double.infinity,
+              //     height: 8000, // Adjust the height here
+              //   ),
+              // ),
+             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: Image.network(
@@ -111,6 +149,25 @@ class _ProductState extends State<ProductContent> {
                 ),
               ),
             ),
+            
+            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
+                    color:isLiked ? Colors.red : Colors.white,
+                    onPressed: _toggleLike,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.chat_bubble_outline),
+                    color: Colors.white,
+                    onPressed: (){}
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 8.0),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -118,6 +175,15 @@ class _ProductState extends State<ProductContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                     Text(
+                      '$likes likes',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      
                       productData.name,
                       style: const TextStyle(
                         color: Colors.white,

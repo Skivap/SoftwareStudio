@@ -88,7 +88,7 @@ class _MainPage extends State<MainPage> {
     }
   }
 
-  void addProduct() async {
+void addProduct() async {
     String productName = _productNameController.text.trim();
     String productPrice = _productPriceController.text.trim();
     String productDescription = _productDescriptionController.text.trim();
@@ -110,16 +110,18 @@ class _MainPage extends State<MainPage> {
         }
 
         if (imageUrl != null) {
-          await _firestore.collection('products').add({
+         await _firestore.collection('products').add({
             'sellerId': userId,
             'name': productName,
             'price': double.parse(productPrice),
             'description': productDescription,
             'imageUrl': imageUrl,
             'link': productLink,
+            'likedby': [],
+            'likes':0,
             'comment_count': 0,
           });
-
+          
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product Added Successfully')),
           );
@@ -149,7 +151,7 @@ class _MainPage extends State<MainPage> {
         const SnackBar(content: Text('Please fill in all fields')),
       );
     }
-  }
+  }  
 
   void showProductForm(BuildContext context) {
     showModalBottomSheet<dynamic>(
@@ -259,14 +261,17 @@ class _MainPage extends State<MainPage> {
           actions: [
             IconButton(
               icon: Icon(Icons.add_box_outlined),
+              color:Colors.white,
               onPressed: () {},
             ),
             IconButton(
               icon: Icon(Icons.favorite_border),
+              color:Colors.white,
               onPressed: () {},
             ),
             IconButton(
               icon: Icon(Icons.send_outlined),
+              color:Colors.white,
               onPressed: () {},
             ),
           ],
@@ -277,7 +282,7 @@ class _MainPage extends State<MainPage> {
               child: Column(
                 children: [
                   SizedBox(
-                    height: myHeight * 2,
+                    height: myHeight*2,
                     child: const ProductPage(scrollDirection: Axis.vertical),
                   ),
                 ],

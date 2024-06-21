@@ -10,8 +10,11 @@ class Product {
   final String season;
   final String sellerID;
   final String price;
-
+  final int likes;
+  final List<dynamic> likedby;
   Product({
+    required this.likes,
+    required this.likedby,
     required this.id,
     required this.name,
     required this.description,
@@ -28,6 +31,8 @@ class Product {
     var a = data['price'];
     print(a.runtimeType);
     return Product(
+      likes: data['likes'] ?? 0,
+      likedby: data['likedby'] ?? [],
       id: doc.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
