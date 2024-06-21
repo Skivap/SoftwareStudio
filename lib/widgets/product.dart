@@ -5,14 +5,10 @@ import 'package:prototype_ss/widgets/buy_product_screen.dart';
 
 class ProductCard extends StatefulWidget {
   final Product productData;
-  final void Function(int) selectIdx;
-  final int idItem;
 
   const ProductCard({
     Key? key,
     required this.productData,
-    required this.selectIdx,
-    required this.idItem,
   }) : super(key: key);
 
   @override
@@ -21,91 +17,88 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
 
-  // void _showProductDetails(BuildContext context, Map<String, dynamic> productData) {
-  //   showModalBottomSheet<dynamic>(
-  //     isScrollControlled: true,
-  //     context: context,
-  //     builder: (context) {
-  //       return FractionallySizedBox(
-  //         heightFactor: 0.9,
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(15.0),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               Center(
-  //                 child: ClipRRect(
-  //                   borderRadius: BorderRadius.circular(10.0),
-  //                   child: Image.network(
-  //                     productData['imageUrl'],
-  //                     errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-  //                     fit: BoxFit.fill,
-  //                     height: 450,
-  //                     width: double.infinity,
-  //                   ),
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 40),
-  //               Text(
-  //                 productData['name'],
-  //                 textAlign: TextAlign.center,
-  //                 style: const TextStyle(
-  //                   fontSize: 24,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 10),
-  //               Text(
-  //                 '${productData['price']} NTD',
-  //                 textAlign: TextAlign.center,
-  //                 style: const TextStyle(
-  //                   fontSize: 20,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 10),
-  //               Text(
-  //                 productData['description'] ?? 'No description available',
-  //                 textAlign: TextAlign.center,
-  //                 style: const TextStyle(
-  //                   fontSize: 16,
-  //                 ),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () { // Close the bottom sheet
-  //                   showDialog(
-  //                     context: context,
-  //                     builder: (context) => BuyScreen(productData: productData),
-  //                   );
-  //                 },
-  //                 style: ElevatedButton.styleFrom(
-  //                   backgroundColor: Colors.purple,
-  //                 ),
-  //                 child: const Text(
-  //                   'Buy',
-  //                   style: TextStyle(
-  //                     color: Colors.white,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+  void _showProductDetails(BuildContext context, Product productData) {
+    showModalBottomSheet<dynamic>(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.9,
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Image.network(
+                      productData.imageUrl,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                      fit: BoxFit.fill,
+                      height: 450,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                Text(
+                  productData.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${productData.price} NTD',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  productData.description ?? 'No description available',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () { // Close the bottom sheet
+                    showDialog(
+                      context: context,
+                      builder: (context) => BuyScreen(productData: productData),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                  ),
+                  child: const Text(
+                    'Buy',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     Product productData = widget.productData;
-    void Function(int) selectIdx = widget.selectIdx;
-    int idItem = widget.idItem;
 
     return InkWell(
       onTap: () {
-        selectIdx(idItem);
-        // _showProductDetails(context);
+        _showProductDetails(context, productData);
       },
       child: Padding(
         padding: const EdgeInsets.all(1.0),

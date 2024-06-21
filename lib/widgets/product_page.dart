@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/widgets/product.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
-
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ProductPage extends StatefulWidget {
   final Axis scrollDirection;
@@ -30,26 +30,6 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
 
   var selectIndex = -1;
-
-  void selectItemIndex(int tt){
-    setState(() {
-      if(selectIndex == tt){
-        selectIndex = -1;
-      } else {
-        selectIndex = tt;
-      }
-    });
-
-  }
-
-  int rounderIndex(int idx, int n) {
-    if(idx == -1) {
-      return n;
-    }
-    int roundedIdx =  3 * ((idx + 3) / 3).floor();
-    return roundedIdx > n ? n : roundedIdx;
-  }
-
 
   @override
   void initState() {
@@ -83,16 +63,17 @@ class _ProductPageState extends State<ProductPage> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('products').snapshots(),
         builder: (context, snapshot) {
-            return GridView.count(
+            return StaggeredGrid.count(
               crossAxisCount: 3,
               crossAxisSpacing: 0,
               mainAxisSpacing: 0,
               children: products.map((product) {
-                int index = products.indexOf(product);
-                return ProductCard(
-                  productData: product,
-                  selectIdx: selectItemIndex,
-                  idItem: index,
+                return StaggeredGridTile.count(
+                  crossAxisCellCount: 1 ,
+                  mainAxisCellCount: 1,
+                  child: ProductCard(
+                    productData: product,
+                  ),
                 );
               }).toList(),
             );

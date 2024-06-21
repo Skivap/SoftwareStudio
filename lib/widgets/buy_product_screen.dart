@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/numeric_step_button.dart';
+import 'package:prototype_ss/model/product_model.dart';
 
 class BuyScreen extends StatefulWidget {
-  final Map<String, dynamic> productData;
+  final Product productData;
   const BuyScreen({super.key, required this.productData});
 
   @override
@@ -29,7 +30,7 @@ class _BuyScreen extends State<BuyScreen> {
 
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      String productId = widget.productData['productId'];
+      String productId = widget.productData.id;
       String idempotencyKey = _generateIdempotencyKey(userId, productId);
 
       DocumentReference userRef = _firestore.collection('users').doc(userId);
@@ -42,8 +43,8 @@ class _BuyScreen extends State<BuyScreen> {
           transaction.set(cartRef, {
             'productId': productId,
             'quantity': _quantity,
-            'price': widget.productData['price'],
-            'name': widget.productData['name']
+            'price': widget.productData.price,
+            'name': widget.productData.name
           });
           transaction.set(idempotencyRef, {
             'createdAt': FieldValue.serverTimestamp(),
@@ -81,7 +82,7 @@ class _BuyScreen extends State<BuyScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
                           child: Image.network(
-                            widget.productData['imageUrl'],
+                            widget.productData.imageUrl,
                             errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                             fit: BoxFit.cover,
                             height: 100,
@@ -94,7 +95,7 @@ class _BuyScreen extends State<BuyScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.productData['name'],
+                                widget.productData.name,
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -102,7 +103,7 @@ class _BuyScreen extends State<BuyScreen> {
                               ),
                               const SizedBox(height: 8.0),
                               Text(
-                                '${widget.productData['price']} NTD',
+                                '${widget.productData.price} NTD',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -115,23 +116,23 @@ class _BuyScreen extends State<BuyScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     Text(
-                      widget.productData['description'] ?? 'No description provided',
+                      widget.productData.description ?? 'No description provided',
                       style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 20.0),
-                    NumericStepButton(
-                      key: UniqueKey(),
-                      minValue: 1,
-                      maxValue: widget.productData['availableStock'] ?? 10,
-                      initialValue: _quantity,
-                      onChanged: (value) {
-                        setState(() {
-                          _quantity = value;
-                        });
-                      },
-                    ),
+                    // NumericStepButton(
+                    //   key: UniqueKey(),
+                    //   minValue: 1,
+                    //   maxValue: widget.productData. ?? 10,
+                    //   initialValue: _quantity,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       _quantity = value;
+                    //     });
+                    //   },
+                    // ),
                     const SizedBox(height: 20.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
