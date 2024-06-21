@@ -33,16 +33,16 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
     try {
-      User? user = await _authService.signUpWithEmailPassword(email, password, name);
+      User? user = await _authService.signUpWithEmailPassword(email, password,name);
       if (user == null) {
-        showErrorDialog(context, 'Sing up failed');
+        showErrorDialog(context, 'Sing up failedd');
       } else {
         print('Sign Up Successful: ${user.uid}');
         await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'name': name});
         widget.changePage("Home");
       }
     } catch (e, stackTrace) {
-      showErrorDialog(context, 'Sing up failed');
+      showErrorDialog(context, '$e');
       print('Stack trace: $stackTrace');
     }
   }

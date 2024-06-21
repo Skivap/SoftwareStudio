@@ -21,18 +21,18 @@ class ProductContent extends StatefulWidget {
 }
 
 class _ProductState extends State<ProductContent> {
-  late String? userId;
   String imageLink = '';
-  String username = 'aurick';
+  String username = '';
 
   @override
   void initState() {
     super.initState();
-    userId = widget.productData.sellerID;
-    getUserInfo(userId);
+    
+    getUserInfo(widget.productData.sellerID);
   }
 
-  void getUserInfo(String? userId) async {
+  void getUserInfo(String userId) async {
+    
     try {
       const Duration timeoutDuration = Duration(seconds: 10);
       DocumentSnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
@@ -49,13 +49,16 @@ class _ProductState extends State<ProductContent> {
           });
         }
       } else {
+    
         if (mounted) {
           print('Document does not exist');
         }
       }
     } on TimeoutException catch (_) {
+      username = 'Timeout';
       print('Timeout occurred');
     } catch (e) {
+      username = '$e';
       print('Error: $e');
     }
   }

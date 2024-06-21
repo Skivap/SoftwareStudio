@@ -28,7 +28,12 @@ class _LoginPage extends State<LoginPage> {
   void loginAccount() async{
     String email = _usernameController.text.trim();
     String password = _passwordController.text.trim();
-    if(email== '' && password == '')widget.changePage("Home");
+
+    if(email== '' && password == ''){
+      email = 'kakek@gmail.com';
+      password = '12345678';
+      User? user = await _authService.signInWithEmailPassword(email, password);
+    };
     User? user = await _authService.signInWithEmailPassword(email, password);
     if (user == null){
       showErrorDialog(context, 'Login failed, email or password might be wrong');

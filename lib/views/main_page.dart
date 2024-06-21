@@ -1,19 +1,11 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io' as io;
+import 'package:universal_io/io.dart' as universal_io;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:prototype_ss/widgets/product_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
-var headerStyle = const TextStyle(
-  fontWeight: FontWeight.bold,
-  fontSize: 30,
-);
-
-List<String> banners = ['banner1', 'banner2', 'banner3'];
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prototype_ss/widgets/product_page.dart';
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -30,54 +22,68 @@ class _MainPage extends State<MainPage> {
   final TextEditingController _productDescriptionController = TextEditingController();
   final TextEditingController _productLinkUrlController = TextEditingController();
   late PageController _bannerPageController;
-  
-  File? _pickedImage;
+
+  io.File? _pickedImage;
+  String? _imageUrl;
 
   @override
   void initState() {
     super.initState();
-    // _bannerPageController = PageController(initialPage: 0);
-    // _bannerTimer = Timer.periodic(const Duration(seconds: 7), (Timer timer) {
-    //   if (_currentBannerPage < banners.length - 1) {
-    //     _currentBannerPage++;
-    //   } else {
-    //     _currentBannerPage = 0;
-    //   }
-
-    //   _bannerPageController.animateToPage(
-    //     _currentBannerPage,
-    //     duration: const Duration(milliseconds: 900),
-    //     curve: Curves.easeInOut,
-    //   );
-    // });
   }
 
   @override
   void dispose() {
     super.dispose();
-
   }
 
   Future<void> pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedImage != null){
-      setState(() {
-        _pickedImage = File(pickedImage.path);
-      });
+    if (pickedImage != null) {
+      if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
+        setState(() {
+          _pickedImage = io.File(pickedImage.path);
+        });
+      } else {
+        String? uploadedImageUrl = await uploadImageWeb(pickedImage);
+        setState(() {
+          _imageUrl = uploadedImageUrl;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image selected')),
+      );
     }
   }
 
-  Future<String?> uploadImage(File image) async {
-     try {
-       String filename = DateTime.now().millisecondsSinceEpoch.toString();
-       Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
-       UploadTask uploadTask = storageRef.putFile(image);
-       await uploadTask.whenComplete(() {});
-       return await storageRef.getDownloadURL();
-    } catch(e) {
-      print('Error uploading image: $e');
+  Future<String?> uploadImage(io.File image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
+      UploadTask uploadTask = storageRef.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
+      return null;
+    }
+  }
+
+  Future<String?> uploadImageWeb(XFile image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
+      UploadTask uploadTask = storageRef.putData(await image.readAsBytes());
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
       return null;
     }
   }
@@ -87,18 +93,22 @@ class _MainPage extends State<MainPage> {
     String productPrice = _productPriceController.text.trim();
     String productDescription = _productDescriptionController.text.trim();
     String productLink = _productLinkUrlController.text.trim();
-    //String productImageUrl = _productImageUrlController.text.trim();
     User? user = FirebaseAuth.instance.currentUser;
     String? userId = user?.uid ?? '';
 
     if (productName.isNotEmpty &&
         productPrice.isNotEmpty &&
-        productDescription.isNotEmpty && 
-        _pickedImage != null &&
-        productLink.isNotEmpty){
-        //productImageUrl.isNotEmpty) {
+        productDescription.isNotEmpty &&
+        (_pickedImage != null || _imageUrl != null) &&
+        productLink.isNotEmpty) {
       try {
-        String? imageUrl = await uploadImage(_pickedImage!);
+        String? imageUrl;
+        if (_pickedImage != null) {
+          imageUrl = await uploadImage(_pickedImage!);
+        } else {
+          imageUrl = _imageUrl;
+        }
+
         if (imageUrl != null) {
           await _firestore.collection('products').add({
             'sellerId': userId,
@@ -106,9 +116,8 @@ class _MainPage extends State<MainPage> {
             'price': double.parse(productPrice),
             'description': productDescription,
             'imageUrl': imageUrl,
-            'link' : productLink,
-            'comment_count':0,
-
+            'link': productLink,
+            'comment_count': 0,
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -122,16 +131,17 @@ class _MainPage extends State<MainPage> {
           _productLinkUrlController.clear();
           setState(() {
             _pickedImage = null;
+            _imageUrl = null;
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to upload Image'))
+            const SnackBar(content: Text('Failed to upload Image')),
           );
         }
       } catch (e) {
         print('Error adding product: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add product $e')),
+          SnackBar(content: Text('Failed to add product: $e')),
         );
       }
     } else {
@@ -154,34 +164,45 @@ class _MainPage extends State<MainPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _pickedImage == null
-                      ? GestureDetector(
-                          onTap: pickImage,
-                          child: Container(
-                            height: 250,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image,
-                                size: 200,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        )
-                      : GestureDetector(
-                          onTap: pickImage,
-                          child: Image.file(
-                            _pickedImage!,
-                            height: 250,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                if (_pickedImage == null && _imageUrl == null)
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: Container(
+                      height: 250,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.image,
+                          size: 200,
+                          color: Colors.grey,
                         ),
+                      ),
+                    ),
+                  )
+                else if (_pickedImage != null)
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: Image.file(
+                      _pickedImage!,
+                      height: 250,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else if (_imageUrl != null)
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: Image.network(
+                      _imageUrl!,
+                      height: 250,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 TextField(
                   controller: _productNameController,
                   decoration: const InputDecoration(labelText: 'Product Name'),
@@ -219,7 +240,7 @@ class _MainPage extends State<MainPage> {
 
     return Container(
       child: Scaffold(
-         appBar: AppBar(
+        appBar: AppBar(
           backgroundColor: Colors.black,
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -232,7 +253,7 @@ class _MainPage extends State<MainPage> {
             style: TextStyle(
               fontFamily: 'Billabong', // Use the Instagram font
               fontSize: 32,
-              color: Colors.white
+              color: Colors.white,
             ),
           ),
           actions: [
@@ -253,13 +274,10 @@ class _MainPage extends State<MainPage> {
         body: Stack(
           children: [
             SingleChildScrollView(
-            child:
-              Column(
+              child: Column(
                 children: [
-                  
-                  
                   SizedBox(
-                    height: myHeight*2,
+                    height: myHeight * 2,
                     child: const ProductPage(scrollDirection: Axis.vertical),
                   ),
                 ],
@@ -268,15 +286,15 @@ class _MainPage extends State<MainPage> {
             Positioned(
               bottom: 20,
               right: 20,
-              child:FloatingActionButton(
+              child: FloatingActionButton(
                 onPressed: () {
                   showProductForm(context);
                 },
                 backgroundColor: const Color.fromRGBO(244, 40, 53, 32),
                 child: const Icon(Icons.add),
-              )
-            )
-          ]
+              ),
+            ),
+          ],
         ),
       ),
     );
