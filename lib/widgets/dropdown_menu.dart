@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class DropdownMultiMenu extends StatefulWidget {
   final String title;
@@ -73,22 +75,28 @@ class _DropdownMultiMenuState extends State<DropdownMultiMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeProvider>(context).theme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.tertiary
+          ),
           onPressed: () {
             _showMultiSelect(context);
           },
           child: Text(
             widget.title,
             textAlign: TextAlign.center,
+            style: TextStyle(color: theme.colorScheme.onPrimary),
           ),
         ),
         Wrap(
           children: _selectedItems.map((item) {
             return Chip(
-              label: Text(item),
+              label: Text(item, style: TextStyle(color: theme.colorScheme.onPrimary),),
               onDeleted: () {
                 setState(() {
                   _selectedItems.remove(item);

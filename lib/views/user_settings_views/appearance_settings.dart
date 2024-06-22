@@ -40,28 +40,34 @@ class _AppearancePageState extends State<AppearancePage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-
+    final theme = Provider.of<ThemeProvider>(context).theme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appearance Settings'),
+        iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
+        backgroundColor: theme.colorScheme.secondary,
+        title:  Text('Appearance Settings', style: TextStyle(color: theme.colorScheme.onPrimary)),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          buildThemeTile('Classic Light Theme', classicLightTheme, themeProvider),
-          buildThemeTile('Classic Dark Theme', classicDarkTheme, themeProvider),
-          buildThemeTile('Light Forest Theme', lightForestTheme, themeProvider),
-          buildThemeTile('Sunny Beach Theme', sunnyBeachTheme, themeProvider),
-          buildThemeTile('Twillight Theme', twillightTheme, themeProvider),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () async {
-              themeProvider.setThemeByName(selectedTheme);
-              await updateUserTheme(selectedTheme);
-            },
-            child: const Text('SAVE'),
-          ),
-        ],
+      body: Container(
+        decoration: BoxDecoration(color: theme.colorScheme.primary),
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            buildThemeTile('Classic Light Theme', classicLightTheme, themeProvider),
+            buildThemeTile('Classic Dark Theme', classicDarkTheme, themeProvider),
+            buildThemeTile('Light Forest Theme', lightForestTheme, themeProvider),
+            buildThemeTile('Sunny Beach Theme', sunnyBeachTheme, themeProvider),
+            buildThemeTile('Twillight Theme', twillightTheme, themeProvider),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.secondary),
+              onPressed: () async {
+                themeProvider.setThemeByName(selectedTheme);
+                await updateUserTheme(selectedTheme);
+              },
+              child: Text('SAVE', style: TextStyle(color: theme.colorScheme.onPrimary)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -84,9 +90,11 @@ class _AppearancePageState extends State<AppearancePage> {
   }
 
   Widget buildThemeTile(String title, ThemeData theme, ThemeProvider themeProvider) {
+    final theme = Provider.of<ThemeProvider>(context).theme;
     return Card(
+      color: theme.colorScheme.secondary,
       child: ListTile(
-        title: Text(title),
+        title: Text(title, style: TextStyle(color: theme.colorScheme.onPrimary)),
         trailing: selectedTheme == _themeSwitcher(title)
             ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
             : null,

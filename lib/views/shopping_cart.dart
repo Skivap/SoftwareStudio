@@ -5,7 +5,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/widgets/cart_item.dart';
+import 'package:provider/provider.dart';
 
 class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
@@ -141,80 +143,64 @@ class _ShoppingCartState extends State<ShoppingCart> {
   @override
   Widget build(BuildContext context) {
     double myHeight = MediaQuery.of(context).size.height;
-    //double myWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: AppBar(
-        title:
-        Column(
-          children: [
-            Transform.translate(
-              offset: const Offset(0, 10),
-              child: const Text(
-                'Try On',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 32,
-                  fontFamily: 'Abhaya Libre SemiBold',
-                  fontWeight: FontWeight.w600,
-                  height: 3,
-                  letterSpacing: -0.41,
-                ),
-              ),
+    final theme = Provider.of<ThemeProvider>(context).theme;
+    return Container(
+      decoration: BoxDecoration(color: theme.colorScheme.primary),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.secondary,
+          title: Text(
+            'Wardrobe',
+            style: TextStyle(
+              fontFamily: 'Abhaya Libre SemiBold', 
+              fontSize: 32,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onPrimary,
             ),
-            Transform.translate(
-              offset: const Offset(0, -20),
-              child: const Divider(
-                height: 20,
-                thickness: 3  ,
-                indent: 0,
-                endIndent: 0,
-                color: Colors.black,
-              ),
-            ), 
-          ]
-        )
+          ),
         ),
-      body:
-
-      isLoading ? const Center(child: CircularProgressIndicator()) :
-      errorMessage.isNotEmpty ? Center(child: Text(errorMessage)) :
-      cartItems.isNotEmpty ? 
-        Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            padding: const EdgeInsets.only(top: 30),
-            height: myHeight * 0.92,
-            
-            child: ListView.builder(
-              padding: const EdgeInsets.only(
-                left: 10,
-                right: 10,
+        backgroundColor: theme.colorScheme.primary,
+        body:
+        isLoading ? const Center(child: CircularProgressIndicator()) :
+        errorMessage.isNotEmpty ? Center(child: Text(errorMessage)) :
+        cartItems.isNotEmpty ? 
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              padding: const EdgeInsets.only(top: 30),
+              height: myHeight * 0.92,
+              
+              child: ListView.builder(
+                padding: const EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                ),
+                itemCount: cartItems.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> cartItem = cartItems[index];
+                  String cartId = cartItem['cartId'];
+                  String productId = cartItem['productId'];
+                  Map<String, dynamic> productData = productInfo[productId] ?? {};
+                  return CartItemCard(
+                    productInfo: productData,
+                    cartItemData: cartItem,
+                    removeFromCart: () {
+                      removeFromCart(cartId); 
+                      Navigator.pop(context);
+                    },
+                  );
+                },
               ),
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
-                Map<String, dynamic> cartItem = cartItems[index];
-                String cartId = cartItem['cartId'];
-                String productId = cartItem['productId'];
-                Map<String, dynamic> productData = productInfo[productId] ?? {};
-                return CartItemCard(
-                  productInfo: productData,
-                  cartItemData: cartItem,
-                  removeFromCart: () {
-                    removeFromCart(cartId); 
-                    Navigator.pop(context);
-                  },
-                );
-              },
+      
             ),
-
-          ),
-        ):
-        const Center(
-          child: Text(
-            'Your Shopping Cart is empty. Explore our items!',
-          ),
-        )
+          ):
+           Center(
+            child: Text(
+              'Your Shopping Cart is empty. Explore our items!',
+              style: TextStyle(color: theme.colorScheme.onPrimary)
+            ),
+          )
+      ),
     );
   }
 }

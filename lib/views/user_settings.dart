@@ -2,11 +2,14 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/views/user_settings_views/account_settings.dart';
 import 'package:prototype_ss/views/user_settings_views/appearance_settings.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
 
 class UserSettings extends StatefulWidget {
   final void Function(String) changePage;
@@ -97,41 +100,54 @@ class _UserSettingsState extends State<UserSettings> {
   Widget build(BuildContext context) {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
-
+    final theme = Provider.of<ThemeProvider>(context).theme;
     return Scaffold(
+      //appBar: AppBar(
+      //  title:
+        // Column(
+        //   children: [
+        //     Transform.translate(
+        //       offset: const Offset(0, 10),
+        //       child: const Text(
+        //         'Account',
+        //         textAlign: TextAlign.center,
+        //         style: TextStyle(
+        //           color: Colors.black,
+        //           fontSize: 32,
+        //           fontFamily: 'Abhaya Libre SemiBold',
+        //           fontWeight: FontWeight.w600,
+        //           height: 3,
+        //           letterSpacing: -0.41,
+        //         ),
+        //       ),
+        //     ),
+        //     Transform.translate(
+        //       offset: const Offset(0, -20),
+        //       child: const Divider(
+        //         height: 20,
+        //         thickness: 3,
+        //         indent: 0,
+        //         endIndent: 0,
+        //         color: Colors.black,
+        //       ),
+        //     ), 
+        //   ]
+        // )
+        // ),
       appBar: AppBar(
-        title:
-        Column(
-          children: [
-            Transform.translate(
-              offset: const Offset(0, 10),
-              child: const Text(
-                'Account',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 32,
-                  fontFamily: 'Abhaya Libre SemiBold',
-                  fontWeight: FontWeight.w600,
-                  height: 3,
-                  letterSpacing: -0.41,
-                ),
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, -20),
-              child: const Divider(
-                height: 20,
-                thickness: 3,
-                indent: 0,
-                endIndent: 0,
-                color: Colors.black,
-              ),
-            ), 
-          ]
-        )
+        backgroundColor: theme.colorScheme.secondary,
+        title: Text(
+          'Settings',
+          style: TextStyle(
+            fontFamily: 'Abhaya Libre SemiBold', 
+            fontSize: 32,
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onPrimary,
+          ),
         ),
-      body: Padding(
+      ),
+      body: Container(
+        decoration: BoxDecoration(color: theme.colorScheme.primary),
         padding: EdgeInsets.all(myWidth * 0.02),
         child: Column(
           children: [
@@ -145,7 +161,7 @@ class _UserSettingsState extends State<UserSettings> {
                   Flexible(
                     child: Image.network(
                       imageLink,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 40),
+                      errorBuilder: (context, error, stackTrace) =>  Icon(Icons.error, size: 40, color: theme.colorScheme.onPrimary,),
                       fit: BoxFit.cover,
                       height: 200,
                     ),
@@ -155,9 +171,10 @@ class _UserSettingsState extends State<UserSettings> {
                     width: myWidth * 0.4,
                     child: Text(
                       username,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 30,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -208,50 +225,50 @@ class _UserSettingsState extends State<UserSettings> {
             // ),
             const SizedBox(height:20),
             ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('Account'),
+                leading:  Icon(Icons.account_circle, color: theme.colorScheme.onPrimary,),
+                title:  Text('Account', style: TextStyle(color: theme.colorScheme.onPrimary,)),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettings()));
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.notifications),
-                title: const Text('Notifications'),
+                leading:  Icon(Icons.notifications, color: theme.colorScheme.onPrimary,),
+                title: Text('Notifications',style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: () {
       
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.color_lens),
-                title: const Text('Appearance'),
+                leading:  Icon(Icons.color_lens, color: theme.colorScheme.onPrimary,),
+                title:  Text('Appearance', style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AppearancePage()));
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.lock),
-                title: const Text('Privacy & Security'),
+                leading:  Icon(Icons.lock, color: theme.colorScheme.onPrimary,),
+                title:  Text('Privacy & Security', style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: () {
       
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.help),
-                title: const Text('Help and Support'),
+                leading:  Icon(Icons.help, color: theme.colorScheme.onPrimary,),
+                title:  Text('Help and Support', style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: () {
       
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.info),
-                title: const Text('About'),
+                leading: Icon(Icons.info, color: theme.colorScheme.onPrimary,),
+                title:  Text('About', style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: () {
       
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
+                leading: Icon(Icons.logout, color: theme.colorScheme.onPrimary,),
+                title:  Text('Logout', style: TextStyle(color: theme.colorScheme.onPrimary)),
                 onTap: _logout,
               ),
           ],

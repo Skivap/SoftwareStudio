@@ -86,7 +86,7 @@ class _SearchGridState extends State<SearchGrid> {
     final productsProvider = Provider.of<ProductsProvider>(context);
     var products = productsProvider.products;
     return Container(
-      color: theme.colorScheme.primary,
+      decoration: BoxDecoration(color: theme.colorScheme.primary),
       child: Scaffold(
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('products').snapshots(),
@@ -94,7 +94,6 @@ class _SearchGridState extends State<SearchGrid> {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
-      
             return GridView.builder(
               controller: _scrollController,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
