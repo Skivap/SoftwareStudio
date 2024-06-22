@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/widgets/product.dart';
@@ -14,7 +15,7 @@ class ProductPage extends StatefulWidget {
   final int mode;
   final int rows;
   const ProductPage({
-    Key? key, 
+    super.key, 
     this.scrollDirection = Axis.vertical, 
     this.rows = 1,
     this.mode = 0,
@@ -22,10 +23,12 @@ class ProductPage extends StatefulWidget {
     this.categoryFilters = const [], 
     this.styleFilters = const [], 
     this.seasonFilters = const [],
-  }) : super(key: key);
+  });
 
   @override
-  _ProductPageState createState() => _ProductPageState();
+  State<ProductPage> createState() {
+    return _ProductPageState();
+  }
 }
 
 class _ProductPageState extends State<ProductPage> {
@@ -86,17 +89,18 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     double myHeight = MediaQuery.of(context).size.height;
+    final theme = Provider.of<ThemeProvider>(context).theme;
 
     final productsProvider = Provider.of<ProductsProvider>(context);
     var products = productsProvider.products;
     return Container(
-      color:Colors.black,
+      color: theme.colorScheme.primary,
       child: Scaffold(
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('products').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
       
             return GridView.builder(
@@ -105,7 +109,6 @@ class _ProductPageState extends State<ProductPage> {
                 crossAxisCount: widget.rows,
                 crossAxisSpacing: 0.0,
                 mainAxisSpacing: 0.0,
-                
               ),
               itemCount: products.length,
               itemBuilder: (BuildContext context, int index) {

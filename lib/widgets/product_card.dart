@@ -6,12 +6,14 @@ class ProductCard extends StatefulWidget {
   final Product productData;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.productData,
-  }) : super(key: key);
+  });
 
   @override
-  _ProductCardState createState() => _ProductCardState();
+  State<ProductCard> createState() {
+    return _ProductCardState();
+  }
 }
 
 class _ProductCardState extends State<ProductCard> {
@@ -21,7 +23,7 @@ class _ProductCardState extends State<ProductCard> {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return ProductContent(productData: productData);
+        return ProductContent(productData: productData, showExitButton: true,);
       },
     );
   }
@@ -29,6 +31,7 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     Product productData = widget.productData;
+    final theme = Theme.of(context);
 
     return InkWell(
       onTap: () {
@@ -62,18 +65,18 @@ class _ProductCardState extends State<ProductCard> {
                   Text(
                     productData.name,
                     textAlign: TextAlign.left,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white, // Make text color white for better contrast
+                      color: theme.colorScheme.onPrimary, 
                     ),
                   ),
                   Text(
                     '${productData.price} NTD',
                     textAlign: TextAlign.left,
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontSize: 12,
-                      color: Colors.white, // Make text color white for better contrast
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ),
                 ],

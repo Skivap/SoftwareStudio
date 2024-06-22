@@ -6,7 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-//import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -30,7 +31,6 @@ class _AccountSettings extends State<AccountSettings> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  //final TextEditingController _birthdayController = TextEditingController();
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _AccountSettings extends State<AccountSettings> {
     getUserInfo();
   }
 
-  void getUserInfo() async {
+  Future<void> getUserInfo() async {
     try {
       const Duration timeoutDuration = Duration(seconds: 10);
       DocumentSnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
@@ -57,13 +57,17 @@ class _AccountSettings extends State<AccountSettings> {
             gender = querySnapshot.data()?['gender'] ?? 'Male';
             email = querySnapshot.data()?['email'] ?? '';
             phone = querySnapshot.data()?['phone'] ?? '';
-            //birthday = (querySnapshot.data()?['birthday'] as Timestamp).toDate() ?? birthday;
+            // birthday = (querySnapshot.data()?['birthday'] as Timestamp).toDate() ?? birthday;
 
             _nameController.text = username;
             _emailController.text = email;
             _phoneController.text = phone;
-           // _birthdayController.text = DateFormat('yyyy-MM-dd').format(birthday);
+            // _birthdayController.text = DateFormat('yyyy-MM-dd').format(birthday);
           });
+
+          // Fetch and apply the user's theme
+          String themeName = querySnapshot.data()?['theme'] ?? 'classicLightTheme';
+          Provider.of<ThemeProvider>(context, listen: false).setThemeByName(themeName);
         }
       } else {
         if (mounted) {
@@ -118,21 +122,29 @@ class _AccountSettings extends State<AccountSettings> {
   }
 
   Widget buildTextField(
+    BuildContext context,
       String labelText, TextEditingController controller, String hintText, bool isEditable) {
+    
+    final theme = Provider.of<ThemeProvider>(context).theme;
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: TextField(
         controller: controller,
         readOnly: isEditable,
+        style: TextStyle(color: theme.colorScheme.onPrimary),
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.only(bottom: 5),
           labelText: labelText,
+          labelStyle: TextStyle(
+            color: theme.colorScheme.onPrimary
+          ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           hintText: hintText,
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
       ),
@@ -143,10 +155,12 @@ class _AccountSettings extends State<AccountSettings> {
   Widget build(BuildContext context) {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
+    final theme = Provider.of<ThemeProvider>(context).theme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: Text('Edit Profile', style: TextStyle(color: theme.colorScheme.onPrimary)),
+        backgroundColor: theme.colorScheme.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -154,12 +168,13 @@ class _AccountSettings extends State<AccountSettings> {
           },
         ),
       ),
+      backgroundColor: theme.colorScheme.primary,
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               height: myHeight * 0.18,
-              decoration: const BoxDecoration(color: Color.fromRGBO(244, 40, 53, 32)),
+              decoration: BoxDecoration(color: theme.colorScheme.tertiary),
               child: Stack(
                 children: [
                   Align(
@@ -168,7 +183,7 @@ class _AccountSettings extends State<AccountSettings> {
                       width: 120 > myWidth * 0.175 ? myWidth * 0.175 : 120,
                       height: 120 > myWidth * 0.175 ? myWidth * 0.175 : 120,
                       decoration: BoxDecoration(
-                        border: Border.all(width: 4, color: Colors.white),
+                        border: Border.all(width: 4, color: const Color.fromRGBO(43, 43, 43, 0.376)),
                         boxShadow: [
                           BoxShadow(
                             spreadRadius: 2,
@@ -197,9 +212,9 @@ class _AccountSettings extends State<AccountSettings> {
                           shape: BoxShape.circle,
                           border: Border.all(
                             width: 4,
-                            color: Theme.of(context).scaffoldBackgroundColor,
+                            color: Colors.white,
                           ),
-                          color: Color.fromRGBO(244, 40, 53, 32),
+                          color: theme.colorScheme.tertiary,
                         ),
                         child: const Icon(
                           Icons.edit,
@@ -216,15 +231,19 @@ class _AccountSettings extends State<AccountSettings> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  buildTextField("Name", _nameController, username, false),
+                  buildTextField(context, "Name", _nameController, username, false),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: DropdownButtonFormField<String>(
+                      dropdownColor: theme.colorScheme.secondary,
                       value: gender.isNotEmpty ? gender : null,
                       items: ['Male', 'Female', 'Other']
                           .map((label) => DropdownMenuItem(
                                 value: label,
-                                child: Text(label),
+                                child: Text(
+                                  label,
+                                  style: TextStyle(color: theme.colorScheme.onPrimary)
+                                ),
                               ))
                           .toList(),
                       onChanged: (value) {
@@ -232,20 +251,21 @@ class _AccountSettings extends State<AccountSettings> {
                           gender = value!;
                         });
                       },
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(bottom: 5),
+                      decoration:  InputDecoration(
+                        contentPadding: const EdgeInsets.only(bottom: 5),
                         labelText: 'Gender',
+                        labelStyle: TextStyle(color: theme.colorScheme.onPrimary),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: theme.colorScheme.onPrimary,
                         ),
                       ),
                     ),
                   ),
-                  buildTextField("Email", _emailController, email, true),
-                  buildTextField("Phone", _phoneController, '', false),
+                  buildTextField(context, "Email", _emailController, email, true),
+                  buildTextField(context,"Phone", _phoneController, '', false),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -272,7 +292,7 @@ class _AccountSettings extends State<AccountSettings> {
                       ElevatedButton(
                         onPressed: updateUserInfo,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(244, 40, 53, 32),
+                          backgroundColor: theme.colorScheme.secondary,
                           padding: const EdgeInsets.symmetric(horizontal: 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
 import 'package:prototype_ss/widgets/error_dialog.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
   final void Function(String) changePage;
@@ -33,17 +35,31 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
     try {
-      User? user = await _authService.signUpWithEmailPassword(email, password,name);
+      User? user = await _authService.signUpWithEmailPassword(email, password, name);
       if (user == null) {
-        showErrorDialog(context, 'Sing up failedd');
+        showErrorDialog(context, 'Sign up failed');
       } else {
-        print('Sign Up Successful: ${user.uid}');
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'name': name});
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': name,
+          'theme': 'classicLightTheme',
+          'gender': 'Male'
+        });
+        await fetchAndApplyTheme(user.uid);
         widget.changePage("Home");
       }
     } catch (e, stackTrace) {
       showErrorDialog(context, '$e');
       print('Stack trace: $stackTrace');
+    }
+  }
+  
+  Future<void> fetchAndApplyTheme(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      String themeName = userDoc['theme'] ?? 'classicLightTheme';
+      Provider.of<ThemeProvider>(context, listen: false).setThemeByName(themeName);
+    } catch (e) {
+      print('Error fetching theme from Firestore: $e');
     }
   }
 

@@ -1,4 +1,6 @@
 import 'dart:io' as io;
+import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_io/io.dart' as universal_io;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -239,43 +241,49 @@ void addProduct() async {
   Widget build(BuildContext context) {
     double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
+    final theme = Provider.of<ThemeProvider>(context).theme;
 
     return Container(
+      decoration: BoxDecoration(color: theme.colorScheme.primary),
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
+          backgroundColor: theme.colorScheme.secondary,
+          leading: const Padding(
+            padding: EdgeInsets.only(top: 6.0, bottom: 6.0, left: 5.0),
             child: CircleAvatar(
               backgroundImage: AssetImage('assets/images/logo.png'), // Your profile image asset
             ),
           ),
-          title: Text(
-            'Trendify',
-            style: TextStyle(
-              fontFamily: 'Billabong', // Use the Instagram font
-              fontSize: 32,
-              color: Colors.white,
+          title:  Padding(
+            padding: const EdgeInsets.only(top:8.0, bottom: 8.0, left: 5.0),
+            child: Text(
+              'Trendify',
+              style: TextStyle(
+                fontFamily: 'Billabong', // Use the Instagram font
+                fontSize: 32,
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.add_box_outlined),
-              color:Colors.white,
+              icon: const Icon(Icons.add_box_outlined),
+              color: theme.colorScheme.onPrimary,
               onPressed: () {},
             ),
             IconButton(
-              icon: Icon(Icons.favorite_border),
-              color:Colors.white,
+              icon: const Icon(Icons.favorite_border),
+              color:theme.colorScheme.onPrimary,
               onPressed: () {},
             ),
             IconButton(
-              icon: Icon(Icons.send_outlined),
-              color:Colors.white,
+              icon: const Icon(Icons.send_outlined),
+              color:theme.colorScheme.onPrimary,
               onPressed: () {},
             ),
           ],
         ),
+        backgroundColor: theme.colorScheme.primary,
         body: Stack(
           children: [
             SingleChildScrollView(
@@ -295,7 +303,7 @@ void addProduct() async {
                 onPressed: () {
                   showProductForm(context);
                 },
-                backgroundColor: const Color.fromRGBO(244, 40, 53, 32),
+                backgroundColor: theme.colorScheme.tertiary,
                 child: const Icon(Icons.add),
               ),
             ),

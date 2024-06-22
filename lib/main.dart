@@ -4,6 +4,7 @@ import 'package:prototype_ss/firebase_options.dart';
 import 'package:prototype_ss/page_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ProductsProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: MyApp(),
     ),
@@ -24,19 +26,11 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primaryColor: const Color.fromARGB(255, 251, 80, 18),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 216, 219, 226),
-        ),
-        useMaterial3: true,
-      ),
-
+      theme: themeProvider.theme,
       home: const PageSwitcher(),
-
     );
   }
 }

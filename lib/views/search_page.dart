@@ -111,7 +111,7 @@ Widget searchPage(BuildContext context) {
                     seasonFilters: _selectedSeasonFilters,
                   ),
                 ),
-                const SizedBox(height: 120),
+                const SizedBox(height: 10),
               ],
             ),
           );

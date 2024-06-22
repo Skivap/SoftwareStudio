@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/views/user_settings_views/account_settings.dart';
+import 'package:prototype_ss/views/user_settings_views/appearance_settings.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -224,7 +225,7 @@ class _UserSettingsState extends State<UserSettings> {
                 leading: const Icon(Icons.color_lens),
                 title: const Text('Appearance'),
                 onTap: () {
-      
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AppearancePage()));
                 },
               ),
               ListTile(

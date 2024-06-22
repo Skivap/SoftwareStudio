@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/widgets/authentication.dart';
 import 'package:flutter/gestures.dart';
 import 'package:prototype_ss/widgets/error_dialog.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:prototype_ss/model/themes.dart';
 
 class LoginPage extends StatefulWidget {
   
@@ -25,21 +29,49 @@ class _LoginPage extends State<LoginPage> {
   String? username;
   String? password;
 
-  void loginAccount() async{
+  void loginAccount() async {
     String email = _usernameController.text.trim();
     String password = _passwordController.text.trim();
 
-    if(email== '' && password == ''){
+    if (email == '' && password == '') {
       email = 'kakek@gmail.com';
       password = '12345678';
-      User? user = await _authService.signInWithEmailPassword(email, password);
-    };
-    User? user = await _authService.signInWithEmailPassword(email, password);
-    if (user == null){
-      showErrorDialog(context, 'Login failed, email or password might be wrong');
     }
-    else {
+
+    User? user = await _authService.signInWithEmailPassword(email, password);
+    if (user == null) {
+      showErrorDialog(context, 'Login failed, email or password might be wrong');
+    } else {
+      await fetchAndApplyTheme(user.uid);
       widget.changePage("Home");
+    }
+  }
+
+  String getStringName(var theme) {
+    if (theme == classicLightTheme) {
+      return 'classicLightTheme';
+    } else if (theme == classicDarkTheme) {
+      return 'classicDarkTheme';
+    } else if (theme == lightForestTheme) {
+      return 'lightForestTheme';
+    } else if (theme == sunnyBeachTheme) {
+      return 'sunnyBeachTheme';
+    } else if (theme == twillightTheme) {
+      return 'twillightTheme';
+    } else {
+      return 'unknown';
+    }
+  }
+
+  Future<void> fetchAndApplyTheme(String userId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      String themeName = userDoc['theme'] ?? 'classicLightTheme';
+      print('Fetched theme: $themeName');
+      Provider.of<ThemeProvider>(context, listen: false).setThemeByName(themeName);
+      print('Theme applied: ${getStringName(Provider.of<ThemeProvider>(context, listen: false).theme)}'); // Debug statement
+    } catch (e) {
+      print('Error fetching theme from Firestore: $e');
     }
   }
 

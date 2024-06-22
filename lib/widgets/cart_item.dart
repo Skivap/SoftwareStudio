@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 
 class CartItemCard extends StatelessWidget {
@@ -70,7 +68,7 @@ class CartItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  productInfo['description'] ?? 'Loading d  escription...',
+                  productInfo['description'] ?? 'Loading description...',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
