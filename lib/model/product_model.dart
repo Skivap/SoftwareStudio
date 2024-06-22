@@ -29,7 +29,6 @@ class Product {
   factory Product.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
     var a = data['price'];
-    print(a.runtimeType);
     return Product(
       likes: data['likes'] ?? 0,
       likedby: data['likedby'] ?? [],

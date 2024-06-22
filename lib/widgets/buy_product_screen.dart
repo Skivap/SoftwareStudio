@@ -45,7 +45,9 @@ class _BuyScreen extends State<BuyScreen> {
             'productId': productId,
             'quantity': _quantity,
             'price': widget.productData.price,
-            'name': widget.productData.name
+            'name': widget.productData.name,
+            'url': null
+
           });
           transaction.set(idempotencyRef, {
             'createdAt': FieldValue.serverTimestamp(),

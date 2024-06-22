@@ -88,6 +88,7 @@ class _SearchGridState extends State<SearchGrid> {
     return Container(
       decoration: BoxDecoration(color: theme.colorScheme.primary),
       child: Scaffold(
+        backgroundColor: theme.colorScheme.primary,
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('products').snapshots(),
           builder: (context, snapshot) {

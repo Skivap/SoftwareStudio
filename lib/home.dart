@@ -27,7 +27,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
     Icons.home,
     Icons.search,
     Icons.shopping_cart,
-    Icons.chat,
+    // Icons.chat,
     Icons.person
   ];
 
@@ -39,7 +39,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
       backgroundColor: theme.colorScheme.primary,
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateProperty.all(
+          labelTextStyle: MaterialStateProperty.all(
             TextStyle(
               color: theme.colorScheme.onPrimary
             )
@@ -70,14 +70,14 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
               // icon: Badge(child: Icon(Icons.shopping_cart)),
               label: 'Wardrobe',
             ),
-            NavigationDestination(
-              icon: Icon(Icons.messenger_sharp),
-              // icon: Badge(
-              //   label: Text('2'),
-              //   child: Icon(Icons.messenger_sharp),
-              // ),
-              label: 'Message',
-            ),
+            // NavigationDestination(
+            //   icon: Icon(Icons.messenger_sharp),
+            //   // icon: Badge(
+            //   //   label: Text('2'),
+            //   //   child: Icon(Icons.messenger_sharp),
+            //   // ),
+            //   label: 'Message',
+            // ),
             NavigationDestination(
               icon: Icon(Icons.settings_rounded),
               //icon: Badge(child: Icon(Icons.notifications_sharp)),
@@ -90,7 +90,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
         const MainPage(),
         searchPage(context),
         const ShoppingCart(),
-        const ChatPage(),
+        // const ChatPage(),
         UserSettings(changePage: widget.changePage)
       ][_currentPageIndex]
     );

@@ -154,6 +154,7 @@ class _ProductState extends State<ProductContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(height: 50,),
           Row(
             children: [
               if (widget.showExitButton)
@@ -166,7 +167,7 @@ class _ProductState extends State<ProductContent> {
                 ),
               const SizedBox(width: 5),
               CircleAvatar(
-                backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'assets/images/logo.png'),
+                backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
               ),
               const SizedBox(width: 8.0),
               Text(

@@ -14,6 +14,8 @@ final ThemeData classicLightTheme = ThemeData(
     onError: Colors.white,
     surface: Colors.white,
     onSurface: Colors.black,
+    background: Colors.green,
+    onBackground: Colors.green,
   ),
 );
 
@@ -31,6 +33,8 @@ final ThemeData classicDarkTheme = ThemeData(
     onError: Colors.black,
     surface: Colors.black,
     onSurface: Colors.white,
+    background: Colors.green,
+    onBackground: Colors.green,
   ),
 );
 
@@ -48,6 +52,8 @@ final ThemeData lightForestTheme = ThemeData(
     onError: Colors.white,
     surface: Colors.white,
     onSurface: Colors.black,
+    background: Colors.green,
+    onBackground: Colors.green,
   ),
 );
 
@@ -65,6 +71,8 @@ final ThemeData sunnyBeachTheme = ThemeData(
     onError: Colors.white,
     surface: Colors.white,
     onSurface: Colors.black,
+    background: Colors.green,
+    onBackground: Colors.green,
   ),
 );
 
@@ -82,5 +90,7 @@ final ThemeData twillightTheme = ThemeData(
     onError: Colors.black,
     surface: Color(0xFF1E1E1E),
     onSurface: Colors.white,
+    background: Colors.green,
+    onBackground: Colors.green,
   ),
 );

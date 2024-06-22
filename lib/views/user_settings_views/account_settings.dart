@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,6 +27,9 @@ class _AccountSettings extends State<AccountSettings> {
   String email = '';
   String phone = '';
   var birthday = DateTime.now();
+
+  io.File? _pickedImage;
+  String? _imageUrl;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -106,18 +109,23 @@ class _AccountSettings extends State<AccountSettings> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      final File imageFile = File(pickedFile.path);
-      final Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('profile_images/$userId.jpg');
-      final UploadTask uploadTask = storageReference.putFile(imageFile);
+      try{
+        final io.File imageFile = io.File(pickedFile.path);
+        final Reference storageReference = FirebaseStorage.instance
+            .ref()
+            .child('profile_images/$userId.jpg');
+        final UploadTask uploadTask = storageReference.putFile(imageFile);
 
-      final TaskSnapshot downloadUrl = await uploadTask;
-      final String url = await downloadUrl.ref.getDownloadURL();
+        final TaskSnapshot downloadUrl = await uploadTask;
+        final String url = await downloadUrl.ref.getDownloadURL();
 
-      setState(() {
-        imageLink = url;
-      });
+        setState(() {
+          imageLink = url;
+        });
+      }
+      catch(e){
+        print("error at $e");
+      }
     }
   }
 
@@ -203,7 +211,8 @@ class _AccountSettings extends State<AccountSettings> {
                   Positioned(
                     bottom: 10,
                     right: 10,
-                    child: GestureDetector(
+                    child: 
+                    GestureDetector(
                       onTap: pickImage,
                       child: Container(
                         height: 40,
