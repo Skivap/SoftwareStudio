@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
+
 class CartItemCard extends StatelessWidget {
   final Map<String, dynamic> productInfo;
   final Map<String, dynamic> cartItemData;
@@ -55,6 +58,7 @@ class CartItemCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
+
                   ),
                 ),
                 const SizedBox(height: 10,),
@@ -99,11 +103,12 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeProvider>(context).theme;
     return InkWell(
       onTap: () {
         _showProductDetails(context);
       },
-      hoverColor: Color.fromRGBO(0, 0, 0, 255),
+      hoverColor: theme.colorScheme.secondary,
       child: Container(
         margin: const EdgeInsets.only(left:50, bottom: 20),
         // decoration: BoxDecoration(
@@ -118,14 +123,13 @@ class CartItemCard extends StatelessWidget {
         //     ),
         //   ],
         // ),
-        child: 
-        Column(
+        child: Column(
           children: [
             Row(
             children: [
               Container(
-                decoration:const BoxDecoration(
-                  color: Colors.white
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,8 +139,8 @@ class CartItemCard extends StatelessWidget {
                         Container(
                           width: 100, 
                           height: 100, 
-                          decoration: const BoxDecoration(
-                            color: Colors.black,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
                           ),
                         ),
                         Transform.rotate(
@@ -144,8 +148,8 @@ class CartItemCard extends StatelessWidget {
                             child: Container(
                             width: 100, 
                             height: 100, 
-                            decoration: const BoxDecoration(
-                              color: Colors.black,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary,
                             ),
                           ),
                         ),
@@ -184,9 +188,10 @@ class CartItemCard extends StatelessWidget {
                     Text(
                       productInfo['name'] ?? 'Loading...',
                       textAlign: TextAlign.left,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary
                       ),
                     ),
                     const Divider(
@@ -196,9 +201,9 @@ class CartItemCard extends StatelessWidget {
                     Text(
                       productInfo.containsKey('price') ? '${productInfo['price']} NTD' : 'Loading...',
                       textAlign: TextAlign.left,
-                      style: const TextStyle(
+                      style:  TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ],

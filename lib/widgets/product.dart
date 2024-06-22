@@ -4,6 +4,7 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/service/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prototype_ss/widgets/error_dialog.dart';
 import 'dart:async';
 
 import 'package:provider/provider.dart';
@@ -93,6 +94,46 @@ class _ProductState extends State<ProductContent> {
     }
   }
 
+  void addProduct(String userId) async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null){
+      showErrorDialog(context, 'No user is signed in');
+      return;
+    }
+
+    final String userId = user.uid;
+    final CollectionReference cartRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('cart');
+
+    try {
+      final QuerySnapshot existingProduct = await cartRef
+        .where('productId', isEqualTo: widget.productData.id)
+        .limit(1)
+        .get(); 
+      
+      if (existingProduct.docs.isEmpty){
+        await cartRef.add({
+          'productId': widget.productData.id,
+          'productName': widget.productData.name
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product added to wardrobe')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product already in wardrobe')),
+        );
+      }
+    } catch(e){
+      //print('Error adding product to wardrobe: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add product to wardrobe: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).theme;
@@ -177,7 +218,7 @@ class _ProductState extends State<ProductContent> {
                 ),
                 ElevatedButton(
                   onPressed: () => {
-
+                    addProduct(widget.productData.sellerID)
                   }, 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.secondary
