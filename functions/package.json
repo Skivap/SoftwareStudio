@@ -1,6 +1,7 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "type": "commonjs",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
@@ -13,8 +14,15 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@gradio/client": "^1.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "firebase-admin": "^12.1.0",
-    "firebase-functions": "^5.0.0"
+    "firebase-functions": "^5.0.0",
+    "node-fetch": "^2.6.7",
+    "@gradio/atoms": "0.2.0-beta.4",
+    "@gradio/statustracker": "0.3.0-beta.6",
+    "@gradio/utils": "0.2.0-beta.4"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0"
