@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:prototype_ss/widgets/numeric_step_button.dart';
 import 'package:prototype_ss/model/product_model.dart';
 
 class BuyScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class BuyScreen extends StatefulWidget {
 
 class _BuyScreen extends State<BuyScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  int _quantity = 1;
+  final int _quantity = 1;
   bool _isLoading = false;
 
   String _generateIdempotencyKey(String userId, String productId) {
@@ -54,6 +55,7 @@ class _BuyScreen extends State<BuyScreen> {
         }
       });
 
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pop();
     } catch (e) {
       print('Error adding to cart: $e');
@@ -116,7 +118,7 @@ class _BuyScreen extends State<BuyScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     Text(
-                      widget.productData.description ?? 'No description provided',
+                      widget.productData.description,
                       style: const TextStyle(
                         fontSize: 16,
                       ),

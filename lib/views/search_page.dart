@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prototype_ss/widgets/product_page.dart';
+import 'package:prototype_ss/widgets/search_grid.dart';
 import 'package:prototype_ss/widgets/dropdown_menu.dart';
 
 String _searchQuery = '';
@@ -102,15 +102,13 @@ Widget searchPage(BuildContext context) {
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: ProductPage(
-                    mode: 1,
-                    rows: 3,
-                    searchQuery: _searchQuery,
-                    categoryFilters: _selectedCategoryFilters,
-                    styleFilters: _selectedStyleFilters,
-                    seasonFilters: _selectedSeasonFilters,
-                  ),
-                ),
+                   child: SearchGrid(
+                     searchQuery: _searchQuery,
+                     categoryFilters: _selectedCategoryFilters,
+                     styleFilters: _selectedStyleFilters,
+                     seasonFilters: _selectedSeasonFilters,
+                   ),
+                 ),
                 const SizedBox(height: 10),
               ],
             ),

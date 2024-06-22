@@ -23,6 +23,7 @@ class _MainPage extends State<MainPage> {
   final TextEditingController _productPriceController = TextEditingController();
   final TextEditingController _productDescriptionController = TextEditingController();
   final TextEditingController _productLinkUrlController = TextEditingController();
+  // ignore: unused_field
   late PageController _bannerPageController;
 
   io.File? _pickedImage;
@@ -239,7 +240,6 @@ void addProduct() async {
 
   @override
   Widget build(BuildContext context) {
-    double myWidth = MediaQuery.of(context).size.width;
     double myHeight = MediaQuery.of(context).size.height;
     final theme = Provider.of<ThemeProvider>(context).theme;
 
@@ -291,7 +291,7 @@ void addProduct() async {
                 children: [
                   SizedBox(
                     height: myHeight*2,
-                    child: const ProductPage(scrollDirection: Axis.vertical),
+                    child: const ProductPage(),
                   ),
                 ],
               ),

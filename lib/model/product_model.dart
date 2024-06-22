@@ -40,7 +40,7 @@ class Product {
       category: data['category'] ?? '',
       style: data['style'] ?? '',
       season: data['season'] ?? '',
-      price: data['price'].toString() ?? '',
+      price: data['price'].toString(),
       sellerID: data['sellerId'] ?? '',
     );
   }

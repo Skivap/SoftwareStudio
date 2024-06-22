@@ -6,7 +6,7 @@ final ThemeData classicLightTheme = ThemeData(
     brightness: Brightness.light,
     primary: Colors.white,
     onPrimary: Colors.black,
-    secondary: Colors.white,
+    secondary: Color.fromARGB(255, 254, 244, 244),
     onSecondary: Colors.black,
     tertiary: Colors.blue,
     onTertiary: Colors.white,

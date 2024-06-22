@@ -79,9 +79,9 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
               label: 'Message',
             ),
             NavigationDestination(
-              icon: Icon(Icons.notifications_sharp),
+              icon: Icon(Icons.settings_rounded),
               //icon: Badge(child: Icon(Icons.notifications_sharp)),
-              label: 'Notifications',
+              label: 'Settings',
             ),
           ]
         )

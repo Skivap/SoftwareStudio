@@ -1,28 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
-import 'package:prototype_ss/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/widgets/product.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
 
 class ProductPage extends StatefulWidget {
-  final Axis scrollDirection;
-  final String searchQuery;
-  final List<String> categoryFilters;
-  final List<String> styleFilters;
-  final List<String> seasonFilters;
-  final int mode;
-  final int rows;
   const ProductPage({
-    super.key, 
-    this.scrollDirection = Axis.vertical, 
-    this.rows = 1,
-    this.mode = 0,
-    this.searchQuery = '', 
-    this.categoryFilters = const [], 
-    this.styleFilters = const [], 
-    this.seasonFilters = const [],
+    super.key
   });
 
   @override
@@ -34,6 +19,7 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   late ScrollController _scrollController;
   bool _isLoadingMore = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -44,7 +30,11 @@ class _ProductPageState extends State<ProductPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-        productsProvider.fetchProducts();
+        productsProvider.fetchProducts().then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+        });
       }
     });
   }
@@ -76,51 +66,53 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-  void _applyFilters() {
-    final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    productsProvider.filterProducts(
-      widget.searchQuery,
-      widget.categoryFilters,
-      widget.styleFilters,
-      widget.seasonFilters,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    double myHeight = MediaQuery.of(context).size.height;
     final theme = Provider.of<ThemeProvider>(context).theme;
-
     final productsProvider = Provider.of<ProductsProvider>(context);
-    var products = productsProvider.products;
+    var products = (productsProvider.products);
+
     return Container(
       color: theme.colorScheme.primary,
       child: Scaffold(
-        body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('products').snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-      
-            return GridView.builder(
-              controller: _scrollController,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: widget.rows,
-                crossAxisSpacing: 0.0,
-                mainAxisSpacing: 0.0,
-              ),
-              itemCount: products.length,
-              itemBuilder: (BuildContext context, int index) {
-                if(widget.mode == 0){
-                  return ProductContent(productData: products[index]);
+        backgroundColor: theme.colorScheme.primary,
+        body: Stack(
+          children: [
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('products').snapshots(),
+              builder: (context, snapshot) {
+                if (_isLoading) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-                else{
-                  return ProductCard(productData: products[index]);
+
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
                 }
+
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.extentAfter < 500) {
+                      _loadMoreProducts();
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: products.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ProductContent(productData: products[index]);
+                    },
+                  ),
+                );
               },
-            );
-          },
+            ),
+            if (_isLoadingMore)
+              Positioned(
+                bottom: 20,
+                left: MediaQuery.of(context).size.width / 2 - 15,
+                child: const CircularProgressIndicator(),
+              ),
+          ],
         ),
       ),
     );

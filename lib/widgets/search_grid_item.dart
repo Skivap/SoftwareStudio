@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:prototype_ss/model/product_model.dart';
-import 'package:prototype_ss/widgets/buy_product_screen.dart';
+import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/widgets/product.dart';
-class ProductCard extends StatefulWidget {
+import 'package:provider/provider.dart';
+class SearchGridItem extends StatefulWidget {
   final Product productData;
 
-  const ProductCard({
+  const SearchGridItem({
     super.key,
     required this.productData,
   });
 
   @override
-  State<ProductCard> createState() {
-    return _ProductCardState();
+  State<SearchGridItem> createState() {
+    return _SearchGridItemState();
   }
 }
 
-class _ProductCardState extends State<ProductCard> {
+class _SearchGridItemState extends State<SearchGridItem> {
 
   void _showProductDetails(BuildContext context, Product productData) {
     showModalBottomSheet<dynamic>(
@@ -31,7 +32,7 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     Product productData = widget.productData;
-    final theme = Theme.of(context);
+    final theme = Provider.of<ThemeProvider>(context).theme;
 
     return InkWell(
       onTap: () {
@@ -68,7 +69,7 @@ class _ProductCardState extends State<ProductCard> {
                     style:  TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onPrimary, 
+                      color: theme.colorScheme.onTertiary, 
                     ),
                   ),
                   Text(
@@ -76,7 +77,7 @@ class _ProductCardState extends State<ProductCard> {
                     textAlign: TextAlign.left,
                     style:  TextStyle(
                       fontSize: 12,
-                      color: theme.colorScheme.onPrimary,
+                      color: theme.colorScheme.onTertiary,
                     ),
                   ),
                 ],
