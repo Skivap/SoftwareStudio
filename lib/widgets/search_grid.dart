@@ -4,18 +4,13 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/widgets/search_grid_item.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class SearchGrid extends StatefulWidget {
   final String searchQuery;
-  final List<String> categoryFilters;
-  final List<String> styleFilters;
-  final List<String> seasonFilters;
   const SearchGrid({
     super.key, 
     this.searchQuery = '', 
-    this.categoryFilters = const [], 
-    this.styleFilters = const [], 
-    this.seasonFilters = const [],
   });
 
   @override
@@ -71,12 +66,7 @@ class _SearchGridState extends State<SearchGrid> {
 
   void _applyFilters() {
     final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-    productsProvider.filterProducts(
-      widget.searchQuery,
-      widget.categoryFilters,
-      widget.styleFilters,
-      widget.seasonFilters,
-    );
+    productsProvider.filterProducts(widget.searchQuery);
   }
 
   @override
@@ -95,17 +85,28 @@ class _SearchGridState extends State<SearchGrid> {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
-            return GridView.builder(
-              controller: _scrollController,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 0.0,
-                mainAxisSpacing: 0.0,
+            return AnimationLimiter(
+              child: GridView.builder(
+                controller: _scrollController,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 0.0,
+                  mainAxisSpacing: 0.0,
+                ),
+                itemCount: products.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return AnimationConfiguration.staggeredGrid(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    columnCount: 3,
+                    child: SlideAnimation(
+                      child: FadeInAnimation(
+                        child: SearchGridItem(productData: products[index])
+                      ),
+                    ),
+                  );
+                },
               ),
-              itemCount: products.length,
-              itemBuilder: (BuildContext context, int index) {
-                return SearchGridItem(productData: products[index]);
-              },
             );
           },
         ),

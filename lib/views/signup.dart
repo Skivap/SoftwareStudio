@@ -39,7 +39,7 @@ class _SignUpPageState extends State<SignUpPage> {
       if (user == null) {
         showErrorDialog(context, 'Sign up failed');
       } else {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
           'name': name,
           'theme': 'classicLightTheme',
           'gender': 'Male'

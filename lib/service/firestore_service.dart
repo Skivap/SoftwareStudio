@@ -15,21 +15,19 @@ class FirestoreService {
 
         if (postSnapshot.exists) {
           Map<String, dynamic>? postData = postSnapshot.data() as Map<String, dynamic>?;
-          List<dynamic> likedBy = postData?.containsKey('likedBy') == true
-              ? postData!['likedBy']
-              : [];
+          List<dynamic> likedBy = postData?['likedBy'] ?? [];
 
-          if (likedBy.isEmpty || !likedBy.contains(_currentUser!.uid)) {
-            likedBy.add(_currentUser!.uid);
+          if (!likedBy.contains(_currentUser!.uid)) {
+            // Add the user to the likedBy list and increment the likes count
             transaction.update(postRef, {
               'likes': FieldValue.increment(1),
-              'likedBy': likedBy,
+              'likedBy': FieldValue.arrayUnion([_currentUser!.uid]),
             });
           } else {
-            likedBy.remove(_currentUser!.uid);
+            // Remove the user from the likedBy list and decrement the likes count
             transaction.update(postRef, {
               'likes': FieldValue.increment(-1),
-              'likedBy': likedBy,
+              'likedBy': FieldValue.arrayRemove([_currentUser!.uid]),
             });
           }
         } else {
@@ -45,13 +43,11 @@ class FirestoreService {
     if (_currentUser == null) return false;
 
     try {
-      DocumentSnapshot postSnapshot = await _db.collection('posts').doc(postId).get();
+      DocumentSnapshot postSnapshot = await _db.collection('products').doc(postId).get();
 
       if (postSnapshot.exists) {
         Map<String, dynamic>? postData = postSnapshot.data() as Map<String, dynamic>?;
-        List<dynamic> likedBy = postData?.containsKey('likedBy') == true
-            ? postData!['likedBy']
-            : [];
+        List<dynamic> likedBy = postData?['likedBy'] ?? [];
         return likedBy.contains(_currentUser!.uid);
       }
       return false;

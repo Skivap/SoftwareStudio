@@ -4,6 +4,7 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/widgets/product.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({
@@ -84,11 +85,9 @@ class _ProductPageState extends State<ProductPage> {
                 if (_isLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 return NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
                     if (scrollInfo.metrics.extentAfter < 500) {
@@ -100,7 +99,15 @@ class _ProductPageState extends State<ProductPage> {
                     controller: _scrollController,
                     itemCount: products.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return ProductContent(productData: products[index]);
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          child: FadeInAnimation(
+                            child: ProductContent(productData: products[index])
+                          ),
+                        ),
+                      );
                     },
                   ),
                 );

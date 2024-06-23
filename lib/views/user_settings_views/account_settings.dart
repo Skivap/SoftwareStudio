@@ -22,7 +22,6 @@ class AccountSettings extends StatefulWidget {
 class _AccountSettings extends State<AccountSettings> {
   late User? user;
   late String? userId;
-  String imageLink = '';
   String profileLink = ''; 
   String username = '';
   String gender = '';
@@ -57,18 +56,15 @@ class _AccountSettings extends State<AccountSettings> {
       if (querySnapshot.exists) {
         if (mounted) {
           setState(() {
-            username = querySnapshot.data()?['name'] ?? '';
-            imageLink = querySnapshot.data()?['imageLink'] ?? '';
+            username = querySnapshot.data()?['username'] ?? '';
             profileLink = querySnapshot.data()?['profileLink'] ?? '';
             gender = querySnapshot.data()?['gender'] ?? 'Male';
             email = querySnapshot.data()?['email'] ?? '';
             phone = querySnapshot.data()?['phone'] ?? '';
-            // birthday = (querySnapshot.data()?['birthday'] as Timestamp).toDate() ?? birthday;
 
             _nameController.text = username;
             _emailController.text = email;
             _phoneController.text = phone;
-            // _birthdayController.text = DateFormat('yyyy-MM-dd').format(birthday);
           });
 
           // Fetch and apply the user's theme
@@ -89,13 +85,17 @@ class _AccountSettings extends State<AccountSettings> {
 
   Future<void> updateUserInfo() async {
     try {
+      // Upload the image if a new image is picked
+      if (_pickedImage != null) {
+        _imageUrl = await uploadImage(_pickedImage!);
+      }
+
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'name': _nameController.text,
+        'username': _nameController.text,
         'gender': gender,
         'email': _emailController.text,
         'phone': _phoneController.text,
-        'imageLink': imageLink,
-        'profileLink' :_imageUrl,
+        'profileLink': _imageUrl ?? profileLink,
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
@@ -107,52 +107,33 @@ class _AccountSettings extends State<AccountSettings> {
       );
     }
   }
+
   Future<void> pickImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedImage != null) {
-      try{
+      try {
         if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
-        setState(() {
-          _pickedImage = io.File(pickedImage.path);
-          
-        });
-      } else {
-        String? uploadedImageUrl = await uploadImageWeb(pickedImage);
-        setState(() {
-          _imageUrl = uploadedImageUrl;
-        });
-        print('success $uploadedImageUrl');
+          setState(() {
+            _pickedImage = io.File(pickedImage.path);
+          });
+        } else {
+          setState(() {
+            _pickedImage = io.File(pickedImage.path);
+          });
+        }
+      } catch (e) {
+        print("Error at $e");
       }
-      
-      }
-      catch(e){
-        print("error at $e");
-      }
-    }
-  }
-  
-  Future<String?> uploadImage(io.File image) async {
-    try {
-      String filename = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
-      UploadTask uploadTask = storageRef.putFile(image);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      return await taskSnapshot.ref.getDownloadURL();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
-      return null;
     }
   }
 
-  Future<String?> uploadImageWeb(XFile image) async {
+  Future<String?> uploadImage(io.File image) async {
     try {
       String filename = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
-      UploadTask uploadTask = storageRef.putData(await image.readAsBytes());
+      Reference storageRef = FirebaseStorage.instance.ref().child('profile_images/$filename');
+      UploadTask uploadTask = storageRef.putFile(image);
       TaskSnapshot taskSnapshot = await uploadTask;
       return await taskSnapshot.ref.getDownloadURL();
     } catch (e) {
@@ -166,9 +147,9 @@ class _AccountSettings extends State<AccountSettings> {
   Widget buildTextField(
     BuildContext context,
       String labelText, TextEditingController controller, String hintText, bool isEditable) {
-    
+
     final theme = Provider.of<ThemeProvider>(context).theme;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: TextField(
@@ -202,9 +183,9 @@ class _AccountSettings extends State<AccountSettings> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(color: theme.colorScheme.onPrimary)),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: theme.colorScheme.secondary,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onPrimary),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -221,28 +202,12 @@ class _AccountSettings extends State<AccountSettings> {
                 children: [
                   Align(
                     alignment: Alignment.center,
-                    child: Container(
-                      width: 120 > myWidth * 0.175 ? myWidth * 0.175 : 120,
-                      height: 120 > myWidth * 0.175 ? myWidth * 0.175 : 120,
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 4, color: const Color.fromRGBO(43, 43, 43, 0.376)),
-                        boxShadow: [
-                          BoxShadow(
-                            spreadRadius: 2,
-                            blurRadius: 10,
-                            color: Colors.black.withOpacity(0.1),
-                            offset: const Offset(0, 10),
-                          )
-                        ],
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(_imageUrl != null ? _imageUrl !: imageLink),
-                        ),
-                      ),
+                    child: CircleAvatar(
+                      radius: 60 > myWidth * 0.0875 ? myWidth * 0.0875 : 60,
+                      backgroundImage: NetworkImage(_imageUrl != null ? _imageUrl! : profileLink),
+                      backgroundColor: Colors.grey.shade300,
                     ),
                   ),
-                  
                   Positioned(
                     bottom: 10,
                     right: 10,

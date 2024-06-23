@@ -6,11 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
 import 'dart:io' as io;
-import 'package:universal_io/io.dart' as universal_io;
 
 class ProductContent extends StatefulWidget {
   final Product productData;
@@ -43,16 +40,20 @@ class _ProductState extends State<ProductContent> {
   String imageLink = '';
   String username = '';
   late int likes;
-  late bool isLiked;
+  bool isLiked = false; // Provide a default value for isLiked
 
   @override
   void initState() {
     super.initState();
     likes = widget.productData.likes;
-    isLiked = widget.productData.likedby.contains(FirebaseAuth.instance.currentUser?.uid);
+    _initializeLikeState();
     getUserInfo(widget.productData.sellerID);
   }
- 
+
+  Future<void> _initializeLikeState() async {
+    isLiked = await _firestoreService.hasLikedPost(widget.productData.id);
+    setState(() {});
+  }
 
   void _toggleLike() async {
     final int previousLikes = likes;
@@ -141,7 +142,6 @@ class _ProductState extends State<ProductContent> {
         );
       }
     } catch(e){
-      //print('Error adding product to wardrobe: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add product to wardrobe: $e')),
       );
@@ -284,9 +284,9 @@ class _ProductState extends State<ProductContent> {
                 TextButton(
                   onPressed: () {},
                   child: Text(
-                    'Add a comment', // Provide a fallback if description is null
+                    'Add a comment', 
                     style: TextStyle(
-                      color: Colors.grey[400], // Use indexed access for color shades
+                      color: Colors.grey[400], 
                       fontSize: 14,
                     ),
                   ),

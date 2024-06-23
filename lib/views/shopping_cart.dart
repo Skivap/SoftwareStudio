@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/widgets/cart_item.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
@@ -181,13 +182,21 @@ class _ShoppingCartState extends State<ShoppingCart> {
                   String cartId = cartItem['cartId'];
                   String productId = cartItem['productId'];
                   Map<String, dynamic> productData = productInfo[productId] ?? {};
-                  return CartItemCard(
-                    productInfo: productData,
-                    cartItemData: cartItem,
-                    removeFromCart: () {
-                      removeFromCart(cartId); 
-                      Navigator.pop(context);
-                    },
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      child: FadeInAnimation(
+                        child: CartItemCard(
+                          productInfo: productData,
+                          cartItemData: cartItem,
+                          removeFromCart: () {
+                            removeFromCart(cartId); 
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),

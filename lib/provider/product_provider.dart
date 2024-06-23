@@ -22,7 +22,7 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void filterProducts(String searchQuery, List<String> categoryFilters, List<String> styleFilters, List<String> seasonFilters) 
+  void filterProducts(String searchQuery) 
   async {
      _filteredProducts = List.from(_allProducts);
 
@@ -34,25 +34,6 @@ class ProductsProvider with ChangeNotifier {
                product.description.toLowerCase().contains(searchQuery.toLowerCase());
       }).toList();
     }
-
-    if (categoryFilters.isNotEmpty) {
-      _filteredProducts = _filteredProducts.where((product) {
-        return categoryFilters.contains(product.category);
-      }).toList();
-    }
-
-    if (styleFilters.isNotEmpty) {
-      _filteredProducts = _filteredProducts.where((product) {
-        return styleFilters.contains(product.style);
-      }).toList();
-    }
-
-    if (seasonFilters.isNotEmpty) {
-      _filteredProducts = _filteredProducts.where((product) {
-        return seasonFilters.contains(product.season);
-      }).toList();
-    }
-
     notifyListeners();
   }
 }
