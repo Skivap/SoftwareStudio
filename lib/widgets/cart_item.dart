@@ -1,12 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'dart:io';
+
 import 'dart:math' as math;
 
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/api/viton_api.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:prototype_ss/service/save_image.dart';
 import 'package:prototype_ss/widgets/generate_text.dart';
 
@@ -33,9 +37,11 @@ class _CartItemCardState extends State<CartItemCard>  {
   late Map<String, dynamic> cartItemData;
   late void Function() removeFromCart;
   late String userId;
+  late Map<String, dynamic> userData;
 
   bool _isMounted = false;
   String? link_vton;
+  String? link_bd;
 
   @override
   void initState(){
@@ -50,11 +56,28 @@ class _CartItemCardState extends State<CartItemCard>  {
     super.dispose();
   }
 
-  void _loadData() {
+  void _loadData() async {
     productInfo = widget.productInfo;
     cartItemData = widget.cartItemData;
     removeFromCart = widget.removeFromCart;
     userId = widget.userId;
+    FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .get()
+      .timeout(const Duration(seconds: 10))
+      .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        // Handle the retrieved data, e.g., convert to a model or use a Map
+        userData = documentSnapshot.data() as Map<String, dynamic>;
+        link_bd = userData["bodypic"];
+      } else {
+        print('No data found for user $userId');
+      }
+    }).catchError((error) {
+      print("Error getting user data: $error");
+    });
+
   }
 
   @override
@@ -277,6 +300,43 @@ class _CartItemCardState extends State<CartItemCard>  {
     );
   }
 
+  final ImagePicker _picker = ImagePicker();
+
+  void uploadPictureFromCamera() async {
+    try {
+      // Capture an image using the camera
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      if (image == null) return; // User cancelled the camera
+
+      // Convert XFile to a File object
+      File imageFile = File(image.path);
+
+      // Upload image to Firebase Storage
+      String fileName = 'uploads/${DateTime.now().millisecondsSinceEpoch}.png';
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.ref().child(fileName);
+      UploadTask uploadTask = ref.putFile(imageFile);
+
+      // retrieve the uploaded image URL
+      uploadTask.whenComplete(() async {
+        String imageUrl = await ref.getDownloadURL();
+        print("Upload complete, URL: $imageUrl");
+        FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({
+            "bodypic": imageUrl
+        });
+        // Here you can call other functions to update your UI or state with the new image URL
+      }).catchError((error) {
+        print("Error in uploading image: $error");
+      });
+    } catch (e) {
+      print("Error taking image: $e");
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -398,7 +458,13 @@ class _CartItemCardState extends State<CartItemCard>  {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          generate();
+                          if(link_bd == null){
+                            uploadPictureFromCamera();
+                          }
+                          else{
+                            generate();
+                          }
+                          
                         },
                         style: ElevatedButton.styleFrom(
                           // elevation: 5, // Shadow depth

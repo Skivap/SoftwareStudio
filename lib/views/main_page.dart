@@ -166,7 +166,7 @@ void addProduct() async {
     }
   }  
 
-void showProductForm(BuildContext context) {
+void showProductForm(BuildContext context, ThemeData theme) {
   showModalBottomSheet<dynamic>(
     isScrollControlled: true,
     context: context,
@@ -175,74 +175,202 @@ void showProductForm(BuildContext context) {
         builder: (BuildContext context, StateSetter setModalState) {
           return FractionallySizedBox(
             heightFactor: 0.9,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (_pickedImage == null && _imageUrl == null)
-                    GestureDetector(
-                      onTap: () => pickImage(setModalState),
-                      child: Container(
-                        height: 250,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    if (_pickedImage == null && _imageUrl == null)
+                      GestureDetector(
+                        onTap: () => pickImage(setModalState),
+                        child: Container(
+                          height: 250,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: theme.colorScheme.onSecondary),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.image,
+                              size: 200,
+                              color: theme.colorScheme.onSecondary,
+                            ),
+                          ),
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.image,
-                            size: 200,
-                            color: Colors.grey,
+                      )
+                    else if (_pickedImage != null)
+                      GestureDetector(
+                        onTap: () => pickImage(setModalState),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: theme.colorScheme.onSecondary),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Image.file(
+                            _pickedImage!,
+                            height: 250,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    else if (_imageUrl != null)
+                      GestureDetector(
+                        onTap: () => pickImage(setModalState),
+                        child: Image.network(
+                          _imageUrl!,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    TextField(
+                      controller: _productNameController,
+                      cursorColor: theme.colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        labelText: 'Product Name',
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSecondary, // Set the label color
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline when focused
+                            width: 2
                           ),
                         ),
                       ),
-                    )
-                  else if (_pickedImage != null)
-                    GestureDetector(
-                      onTap: () => pickImage(setModalState),
-                      child: Image.file(
-                        _pickedImage!,
-                        height: 250,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  else if (_imageUrl != null)
-                    GestureDetector(
-                      onTap: () => pickImage(setModalState),
-                      child: Image.network(
-                        _imageUrl!,
-                        height: 250,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSecondary, // Set the font color
                       ),
                     ),
-                  TextField(
-                    controller: _productNameController,
-                    decoration: const InputDecoration(labelText: 'Product Name'),
-                  ),
-                  TextField(
-                    controller: _productPriceController,
-                    decoration: const InputDecoration(labelText: 'Product Price'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  TextField(
-                    controller: _productDescriptionController,
-                    decoration: const InputDecoration(labelText: 'Product Description'),
-                  ),
-                  TextField(
-                    controller: _productLinkUrlController,
-                    decoration: const InputDecoration(labelText: 'Product Link'),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: addProduct,
-                    child: const Text('Add Product'),
-                  ),
-                ],
+                    TextField(
+                      controller: _productPriceController,
+                      cursorColor: theme.colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        labelText: 'Product Price',
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSecondary, // Set the label color
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline when focused
+                            width: 2
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSecondary, // Set the font color
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+
+                    TextField(
+                      controller: _productDescriptionController,
+                      cursorColor: theme.colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        labelText: 'Product Description',
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSecondary, // Set the label color
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline when focused
+                            width: 2
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSecondary, // Set the font color
+                      ),
+                    ),
+
+                    TextField(
+                      controller: _productLinkUrlController,
+                      cursorColor: theme.colorScheme.onSecondary,
+                      decoration: InputDecoration(
+                        labelText: 'Product Link',
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSecondary, // Set the label color
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.onSecondary, // Color for the underline when focused
+                            width: 2
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSecondary, // Set the font color
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: addProduct,
+                      child: const Text('Add Product'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return theme.colorScheme.primary.withOpacity(0.5); // Lighten the color when button is pressed
+                            else if (states.contains(MaterialState.disabled))
+                              return theme.colorScheme.onSurface.withOpacity(0.12); // Disabled color
+                            return theme.colorScheme.primary; // Default color
+                          },
+                        ),
+                        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.disabled))
+                              return Colors.grey; // Color when button is disabled
+                            return theme.colorScheme.onPrimary; // Text color
+                          },
+                        ),
+                        elevation: MaterialStateProperty.resolveWith<double>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed))
+                              return 0.0; // No elevation when pressed
+                            return 4.0; // Default elevation
+                          },
+                        ),
+                        padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                            side: BorderSide(color: theme.colorScheme.primary), // Border color
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
               ),
             ),
           );
@@ -283,7 +411,7 @@ void showProductForm(BuildContext context) {
             IconButton(
               icon: const Icon(Icons.add_box_outlined),
               color: theme.colorScheme.onPrimary,
-              onPressed: () {showProductForm(context);},
+              onPressed: () {showProductForm(context, theme);},
             ),
           ],
         ),
