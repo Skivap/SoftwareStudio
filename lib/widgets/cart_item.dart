@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
@@ -11,12 +12,14 @@ class CartItemCard extends StatefulWidget {
   final Map<String, dynamic> productInfo;
   final Map<String, dynamic> cartItemData;
   final void Function() removeFromCart;
+  final String userId;
 
   const CartItemCard({
     super.key,
     required this.productInfo,
     required this.cartItemData,
     required this.removeFromCart,
+    required this.userId
   });
 
   @override
@@ -27,6 +30,7 @@ class _CartItemCardState extends State<CartItemCard>  {
   late Map<String, dynamic> productInfo;
   late Map<String, dynamic> cartItemData;
   late void Function() removeFromCart;
+  late String userId;
 
   @override
   void initState(){
@@ -38,6 +42,7 @@ class _CartItemCardState extends State<CartItemCard>  {
     productInfo = widget.productInfo;
     cartItemData = widget.cartItemData;
     removeFromCart = widget.removeFromCart;
+    userId = widget.userId;
   }
 
   @override
@@ -150,49 +155,91 @@ class _CartItemCardState extends State<CartItemCard>  {
       "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
       "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
     );
+
+    FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('cart')
+      .doc(cartItemData['cartId'])
+      .update({
+        "url": result
+      });
     
     setState(() {
       _isLoading = false;
-      productInfo['viton'] = result;
       print(result);
     });
   }
+  Widget showResponseWithFutureBuilder(ThemeData theme) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('cart')
+        .doc(cartItemData['cartId'])
+        .get()
+        .timeout(const Duration(seconds: 10)),
+      builder: (context, snapshot) {
+        if (_isLoading || snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            width: 100,
+            height: 100,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        if (snapshot.hasError) {
+          print("Error fetching document: ${snapshot.error}");
+          return Container();
+        }
 
-  Widget showResponse(){
-     if(_isLoading){
-      return const SizedBox(
-        width: 100,
-        height: 100,
-        child: Center(
-          child: CircularProgressIndicator()
-        ),
-      );
-    }
-    else if(productInfo['viton'] == null || productInfo['viton'] == "" ) {
-      return Container();
-    }
-    else{
-      return ClipRRect(
-        child: Image.network(
-          productInfo['viton'] ?? '',
-          fit: BoxFit.cover,
-          width: 100,
-          height: 100,
-          // errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-          // loadingBuilder: (context, child, loadingProgress) {
-          //   if (loadingProgress == null) return child;
-          //   return Center(
-          //     child: CircularProgressIndicator(
-          //       value: loadingProgress.expectedTotalBytes != null
-          //           ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-          //           : null,
-          //     ),
-          //   );
-          // },
-        ),
-      );
-    }
+        if (!snapshot.hasData || snapshot.data!.data() == null) {
+          print("Document does not exist or is empty.");
+          return Container();
+        }
+
+        Map<String, dynamic>? documentData = snapshot.data!.data() as Map<String, dynamic>?;
+        if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
+          return Container();
+        } else {
+          return Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: theme.colorScheme.onPrimary, // Specify the color of the border
+                width: 5.0, // Specify the width of the border
+              ),
+              borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.network(
+                documentData['url'] ?? '',
+                fit: BoxFit.cover,
+                width: 250,
+                height: 250,
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child; // image has loaded
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                              : null, // This will display the progress of the loading.
+                      ),
+                    );
+                  } 
+                }
+              ),
+              
+            ),
+          );
+        }
+      },
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +385,8 @@ class _CartItemCardState extends State<CartItemCard>  {
             ),
           ]
         ),
-        showResponse(),
+        showResponseWithFutureBuilder(theme),
+        Container(height: 20,),
         const Divider(
           thickness: 4,
           indent: 80,

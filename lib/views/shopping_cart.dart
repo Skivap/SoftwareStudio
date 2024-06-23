@@ -99,6 +99,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
           .collection('products')
           .where(FieldPath.documentId, whereIn: productIds)
           .get();
+
       Map<String, dynamic> data = {};
       for (var doc in querySnapshot.docs) {
         data[doc.id] = doc.data();
@@ -194,6 +195,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             removeFromCart(cartId); 
                             Navigator.pop(context);
                           },
+                          userId: _userId,
                         ),
                       ),
                     ),
