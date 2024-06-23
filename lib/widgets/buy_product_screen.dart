@@ -19,15 +19,31 @@ class _BuyScreen extends State<BuyScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final int _quantity = 1;
   bool _isLoading = false;
+  bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
 
   String _generateIdempotencyKey(String userId, String productId) {
     return 'addToCart_${userId}_${productId}_${DateTime.now().millisecondsSinceEpoch}';
   }
 
   void _addToCart() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if(_isMounted){
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -62,9 +78,11 @@ class _BuyScreen extends State<BuyScreen> {
     } catch (e) {
       print('Error adding to cart: $e');
     } finally {
-      setState(() {
-        _isLoading = false; // Reset loading state
-      });
+      if(_isMounted){
+        setState(() {
+          _isLoading = false; // Reset loading state
+        });
+      }
     }
   }
 

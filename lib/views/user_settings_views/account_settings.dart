@@ -113,19 +113,18 @@ class _AccountSettings extends State<AccountSettings> {
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedImage != null) {
-      try {
-        if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
+      setState(() {
+        _pickedImage = io.File(pickedImage.path);
+      });
+      uploadImage(_pickedImage!).then((url) {
+        if (url != null && mounted) {
           setState(() {
-            _pickedImage = io.File(pickedImage.path);
-          });
-        } else {
-          setState(() {
-            _pickedImage = io.File(pickedImage.path);
+            _imageUrl = url;  // Update image URL and UI
           });
         }
-      } catch (e) {
-        print("Error at $e");
-      }
+      }).catchError((error) {
+        print("Failed to upload image: $error");
+      });
     }
   }
 
@@ -256,9 +255,12 @@ class _AccountSettings extends State<AccountSettings> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                        setState(() {
-                          gender = value!;
-                        });
+                        if(mounted){
+                          setState(() {
+                            gender = value!;
+                          });
+                        }
+                        
                       },
                       decoration:  InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 5),

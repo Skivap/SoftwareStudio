@@ -21,12 +21,14 @@ class _ProductPageState extends State<ProductPage> {
   late ScrollController _scrollController;
   bool _isLoadingMore = false;
   bool _isLoading = true;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    _isMounted = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -43,6 +45,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _isMounted = false;
     super.dispose();
   }
 
@@ -54,15 +57,19 @@ class _ProductPageState extends State<ProductPage> {
 
   void _loadMoreProducts() {
     if (!_isLoadingMore) {
-      setState(() {
-        _isLoadingMore = true;
-      });
+      if(_isMounted){
+        setState(() {
+          _isLoadingMore = true;
+        });
+      }
 
       final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
       productsProvider.fetchProducts().then((_) {
-        setState(() {
-          _isLoadingMore = false;
-        });
+        if(_isMounted){
+          setState(() {
+            _isLoadingMore = false;
+          });
+        }
       });
     }
   }

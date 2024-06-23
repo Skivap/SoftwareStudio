@@ -23,15 +23,31 @@ class DropdownMultiMenu extends StatefulWidget {
 class _DropdownMultiMenuState extends State<DropdownMultiMenu> {
   final List<String> _selectedItems = [];
 
+  bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
   void _itemChange(String itemValue, bool isSelected) {
-    setState(() {
-      if (isSelected) {
-        _selectedItems.add(itemValue);
-      } else {
-        _selectedItems.remove(itemValue);
-      }
-      widget.onSelectionChanged(_selectedItems);
-    });
+    if(_isMounted){
+      setState(() {
+        if (isSelected) {
+          _selectedItems.add(itemValue);
+        } else {
+          _selectedItems.remove(itemValue);
+        }
+        widget.onSelectionChanged(_selectedItems);
+      });
+    }
   }
 
   void _showMultiSelect(BuildContext context) {
@@ -98,10 +114,13 @@ class _DropdownMultiMenuState extends State<DropdownMultiMenu> {
             return Chip(
               label: Text(item, style: TextStyle(color: theme.colorScheme.onPrimary),),
               onDeleted: () {
-                setState(() {
-                  _selectedItems.remove(item);
-                  widget.onSelectionChanged(_selectedItems);
-                });
+                if(_isMounted){
+                  setState(() {
+                    _selectedItems.remove(item);
+                    widget.onSelectionChanged(_selectedItems);
+                  });
+                }
+                
               },
             );
           }).toList(),

@@ -52,25 +52,29 @@ class _ProductState extends State<ProductContent> {
 
   Future<void> _initializeLikeState() async {
     isLiked = await _firestoreService.hasLikedPost(widget.productData.id);
-    setState(() {});
+    if(mounted){ setState(() {}); }
   }
 
   void _toggleLike() async {
     final int previousLikes = likes;
     final bool previousIsLiked = isLiked;
 
-    setState(() {
-      isLiked = !isLiked;
-      likes += isLiked ? 1 : -1;
-    });
+    if(mounted){
+      setState(() {
+        isLiked = !isLiked;
+        likes += isLiked ? 1 : -1;
+      });
+    }
 
     try {
       await _firestoreService.likePost(widget.productData.id, previousIsLiked);
     } catch (e) {
-      setState(() {
-        isLiked = previousIsLiked;
-        likes = previousLikes;
-      });
+      if(mounted){
+        setState(() {
+          isLiked = previousIsLiked;
+          likes = previousLikes;
+        });
+      }
       print("Error liking post: $e");
     }
   }
@@ -97,14 +101,18 @@ class _ProductState extends State<ProductContent> {
         }
       }
     } on TimeoutException catch (_) {
-      setState(() {
-        username = 'Timeout';
-      });
+      if(mounted){
+        setState(() {
+          username = 'Timeout';
+        });
+      }
       print('Timeout occurred');
     } catch (e) {
+      if(mounted){
       setState(() {
         username = '$e';
       });
+      }
       print('Error: $e');
     }
   }

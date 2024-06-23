@@ -51,15 +51,19 @@ class _SearchGridState extends State<SearchGrid> {
 
   void _loadMoreProducts() {
     if (!_isLoadingMore) {
+      if(mounted){
       setState(() {
         _isLoadingMore = true;
       });
+      }
 
       final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
       productsProvider.fetchProducts().then((_) {
+        if(mounted){
         setState(() {
           _isLoadingMore = false;
         });
+        }
       });
     }
   }

@@ -26,6 +26,21 @@ class _MainPage extends State<MainPage> {
   // ignore: unused_field
   late PageController _bannerPageController;
 
+  bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
+
   io.File? _pickedImage;
   String? _imageUrl;
    Future<void> pickImage(StateSetter setModalState) async {
@@ -127,10 +142,12 @@ void addProduct() async {
           _productPriceController.clear();
           _productDescriptionController.clear();
           _productLinkUrlController.clear();
-          setState(() {
-            _pickedImage = null;
-            _imageUrl = null;
-          });
+          if(_isMounted){
+            setState(() {
+              _pickedImage = null;
+              _imageUrl = null;
+            });
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to upload Image')),
@@ -234,16 +251,6 @@ void showProductForm(BuildContext context) {
     },
   );
 }
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   
   @override
   Widget build(BuildContext context) {

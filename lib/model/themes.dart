@@ -8,7 +8,7 @@ final ThemeData classicLightTheme = ThemeData(
     onPrimary: Colors.black,
     secondary: Color.fromARGB(255, 254, 244, 244),
     onSecondary: Colors.black,
-    tertiary: Colors.blue,
+    tertiary: Color.fromRGBO(255, 158, 158, 158),
     onTertiary: Colors.white,
     error: Colors.red,
     onError: Colors.white,

@@ -12,12 +12,20 @@ class AppearancePage extends StatefulWidget {
 
 class _AppearancePageState extends State<AppearancePage> {
   String selectedTheme = '';
+  bool mounted = false;
 
   @override
   void initState() {
     super.initState();
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     selectedTheme = themeProvider.getStringName();
+    mounted = true;
+  }
+
+  @override
+  void dispose(){
+    mounted = false;
+    super.dispose();
   }
 
   Future<void> updateUserTheme(String themeName) async {
@@ -99,9 +107,12 @@ class _AppearancePageState extends State<AppearancePage> {
             ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
             : null,
         onTap: () {
-          setState(() {
-            selectedTheme = _themeSwitcher(title);
-          });
+          if(mounted){
+            setState(() {
+              selectedTheme = _themeSwitcher(title);
+            });
+          }
+          
         },
       ),
     );

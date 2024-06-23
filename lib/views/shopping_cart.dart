@@ -136,7 +136,13 @@ class _ShoppingCartState extends State<ShoppingCart> {
       print('Error removing item from cart: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Error removing item from cart'),
+          content: SizedBox(
+            height: 50, // Adjust the height as needed
+            child: Center(
+              child: Text('Item removed from cart'),
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }

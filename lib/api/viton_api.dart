@@ -21,6 +21,6 @@ Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
   // } catch (e) {
   //   return 'Failed to connect or retrieve data: $e';
   // }
-  await Future.delayed(const Duration(seconds: 3));
+  await Future.delayed(const Duration(seconds: 10));
   return bgUrl;
 }

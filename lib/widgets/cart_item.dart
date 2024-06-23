@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
@@ -7,6 +8,7 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/api/viton_api.dart';
 import 'package:prototype_ss/service/save_image.dart';
+import 'package:prototype_ss/widgets/generate_text.dart';
 
 class CartItemCard extends StatefulWidget {
   final Map<String, dynamic> productInfo;
@@ -32,10 +34,20 @@ class _CartItemCardState extends State<CartItemCard>  {
   late void Function() removeFromCart;
   late String userId;
 
+  bool _isMounted = false;
+  String? link_vton;
+
   @override
   void initState(){
     super.initState();
     _loadData();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   void _loadData() {
@@ -72,7 +84,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                   child: ClipRRect(
                     // borderRadius: BorderRadius.circular(10.0),
                     child: Image.network(
-                      productInfo['imageUrl'] ?? '',
+                      link_vton ?? productInfo['imageUrl'] ?? '',
                       fit: BoxFit.cover,
                       height: 450,
                       width: double.infinity,
@@ -143,33 +155,53 @@ class _CartItemCardState extends State<CartItemCard>  {
   bool _isLoading = false;
 
   void generate() async {
-    
-    if(productInfo['viton'] != null && productInfo['viton'] != "") return;
-    if(_isLoading) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    try{
+      if(productInfo['viton'] != null && productInfo['viton'] != "") return;
+      if(_isLoading) return;
 
-    var result = await fetchVitonResult(
-      "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
-      "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
-    );
+      if(_isMounted){
+        setState(() {
+          _isLoading = true;
+        });
+      }
 
-    FirebaseFirestore.instance
-      .collection('users')
-      .doc(userId)
-      .collection('cart')
-      .doc(cartItemData['cartId'])
-      .update({
-        "url": result
-      });
-    
-    setState(() {
-      _isLoading = false;
-      print(result);
-    });
+      FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('cart')
+        .doc(cartItemData['cartId'])
+        .update({
+          "url": "generating"
+        });
+        
+      var result = await fetchVitonResult(
+        "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
+        "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
+      );
+
+      FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('cart')
+        .doc(cartItemData['cartId'])
+        .update({
+          "url": result
+        });
+      
+      if(_isMounted){
+        setState(() {
+          _isLoading = false;
+          print(result);
+        });
+      }
+    }
+    catch(e){
+      print("error as $e");
+      return;
+    }
   }
+
   Widget showResponseWithFutureBuilder(ThemeData theme) {
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
@@ -203,30 +235,35 @@ class _CartItemCardState extends State<CartItemCard>  {
         if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
           return Container();
         } else {
+          link_vton = documentData['url'];
           return Container(
             decoration: BoxDecoration(
               border: Border.all(
                 color: theme.colorScheme.onPrimary, // Specify the color of the border
-                width: 5.0, // Specify the width of the border
+                width: 2.0, // Specify the width of the border
               ),
-              borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
+            //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
+              // borderRadius: BorderRadius.circular(15.0),
               child: Image.network(
                 documentData['url'] ?? '',
                 fit: BoxFit.cover,
-                width: 250,
-                height: 250,
+                width: 150,
+                height: 150,
                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {
                     return child; // image has loaded
                   } else {
                     return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
+                      child: SizedBox(
+                        width: 150, // Explicit width for the loader
+                        height: 150, // Explicit height for the loader
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                              : null, // This will display the progress of the loading.
+                              : null,
+                        ),
                       ),
                     );
                   } 
@@ -245,7 +282,7 @@ class _CartItemCardState extends State<CartItemCard>  {
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).theme;
     return Container(
-      margin: const EdgeInsets.only(left:50, bottom: 20),
+      margin: const EdgeInsets.only(left:20, bottom: 20),
       child: Column(
         children: [
           Row(
@@ -258,46 +295,71 @@ class _CartItemCardState extends State<CartItemCard>  {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Container(
-                        width: 100, 
-                        height: 100, 
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.tertiary,
+                      Transform.rotate(
+                        angle: math.pi/64,
+                        child: Container(
+                          width: 150, 
+                          height: 150, 
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                            border: Border.all(
+                              color: theme.colorScheme.onPrimary, // Specify the color of the border
+                              width: 2.0, // Specify the width of the border
+                            ),
+                          ),
                         ),
                       ),
                       Transform.rotate(
                         angle: -math.pi / 16,
                           child: Container(
-                          width: 100, 
-                          height: 100, 
+                          width: 150, 
+                          height: 150, 
                           decoration: BoxDecoration(
                             color: theme.colorScheme.secondary,
+                            border: Border.all(
+                              color: theme.colorScheme.onPrimary, // Specify the color of the border
+                              width: 2.0, // Specify the width of the border
+                            ),
                           ),
                         ),
                       ),
                       Transform.rotate(
                         angle: -math.pi / 32,
-                        child: ClipRRect(
-                          child: Image.network(
-                            productInfo['imageUrl'] ?? '',
-                            fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
-                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.onPrimary, // Specify the color of the border
+                              width: 2.0, // Specify the width of the border
+                            ),
+                          ),
+                          child: ClipRRect(
+                            child: Image.network(
+                              productInfo['imageUrl'] ?? '',
+                              fit: BoxFit.cover,
+                              width: 150,
+                              height: 150,
+                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: SizedBox(
+                                    width: 150, // Explicit width for the loader
+                                    height: 150, // Explicit height for the loader
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
+                      showResponseWithFutureBuilder(theme),
                     ]
                   ),
                 ],
@@ -339,11 +401,11 @@ class _CartItemCardState extends State<CartItemCard>  {
                           generate();
                         },
                         style: ElevatedButton.styleFrom(
-                          elevation: 5, // Shadow depth
+                          // elevation: 5, // Shadow depth
                           backgroundColor: theme.colorScheme.onSecondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: theme.colorScheme.secondary, width: 3)
+                            // side: BorderSide(color: theme.colorScheme.secondary, width: 3)
                           ), 
                         ),
                         child: Text(
@@ -362,11 +424,11 @@ class _CartItemCardState extends State<CartItemCard>  {
                           _showProductDetails(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          elevation: 5, // Shadow depth
+                          // elevation: 5, // Shadow depth
                           backgroundColor: theme.colorScheme.onSecondary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: theme.colorScheme.secondary, width: 3)
+                            // side: BorderSide(color: theme.colorScheme.secondary, width: 3)
                           ), 
                         ),
                         child: Text(
@@ -385,7 +447,6 @@ class _CartItemCardState extends State<CartItemCard>  {
             ),
           ]
         ),
-        showResponseWithFutureBuilder(theme),
         Container(height: 20,),
         const Divider(
           thickness: 4,

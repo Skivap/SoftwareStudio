@@ -22,11 +22,19 @@ class NumericStepButton extends StatefulWidget {
 
 class _NumericStepButtonState extends State<NumericStepButton> {
   late int counter;  // Declare counter as a late variable
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
     counter = widget.initialValue;  // Initialize counter with initial value
+    _isMounted = true;
+  }
+
+  @override
+  void dispose(){
+    _isMounted = false;
+    super.dispose();
   }
 
   @override
@@ -43,12 +51,15 @@ class _NumericStepButtonState extends State<NumericStepButton> {
           iconSize: 32.0,
           color: Theme.of(context).primaryColor,
           onPressed: () {
-            setState(() {
-              if (counter > widget.minValue) {
-                counter--;
-                widget.onChanged(counter);  // Call onChanged with the updated value
-              }
-            });
+            if(_isMounted){
+              setState(() {
+                if (counter > widget.minValue) {
+                  counter--;
+                  widget.onChanged(counter);  // Call onChanged with the updated value
+                }
+              });
+            }
+            
           },
         ),
         Text(
@@ -69,12 +80,15 @@ class _NumericStepButtonState extends State<NumericStepButton> {
           iconSize: 32.0,
           color: Theme.of(context).primaryColor,
           onPressed: () {
-            setState(() {
-              if (counter < widget.maxValue) {
-                counter++;
-                widget.onChanged(counter);  // Call onChanged with the updated value
-              }
-            });
+            if(_isMounted){
+              setState(() {
+                if (counter < widget.maxValue) {
+                  counter++;
+                  widget.onChanged(counter);  // Call onChanged with the updated value
+                }
+              });
+            }
+            
           },
         ),
       ],
