@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert'; // For json decoding
 
 Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
-  var url = Uri.https('spotty-turkeys-sniff.loca.lt', '/viton/', {
+  var url = Uri.https('deep-eyes-unite.loca.lt', '/viton/', {
     'bgUrl': bgUrl,
     'grUrl': grUrl
   });

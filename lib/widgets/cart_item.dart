@@ -4,8 +4,10 @@ import 'dart:math' as math;
 
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:prototype_ss/api/viton_api.dart';
+import 'package:prototype_ss/service/save_image.dart';
 
-class CartItemCard extends StatelessWidget {
+class CartItemCard extends StatefulWidget {
   final Map<String, dynamic> productInfo;
   final Map<String, dynamic> cartItemData;
   final void Function() removeFromCart;
@@ -16,6 +18,37 @@ class CartItemCard extends StatelessWidget {
     required this.cartItemData,
     required this.removeFromCart,
   });
+
+  @override
+  _CartItemCardState createState() => _CartItemCardState();
+}
+
+class _CartItemCardState extends State<CartItemCard>  {
+  late Map<String, dynamic> productInfo;
+  late Map<String, dynamic> cartItemData;
+  late void Function() removeFromCart;
+
+  @override
+  void initState(){
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    productInfo = widget.productInfo;
+    cartItemData = widget.cartItemData;
+    removeFromCart = widget.removeFromCart;
+  }
+
+  @override
+  void didUpdateWidget(covariant CartItemCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Check if the data has changed, then update
+    if (oldWidget.productInfo != widget.productInfo ||
+        oldWidget.cartItemData != widget.cartItemData) {
+      _loadData();
+    }
+  }
 
   void _showProductDetails(BuildContext context) {
     showModalBottomSheet<dynamic>(
@@ -100,6 +133,62 @@ class CartItemCard extends StatelessWidget {
         );
       },
     );
+  }
+
+  bool _isLoading = false;
+
+  void generate() async {
+    if(_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    var result = await fetchVitonResult(
+      "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
+      "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
+    );
+    
+    setState(() {
+      productInfo['viton'] = result;
+      print(result);
+    });
+  }
+
+  Widget showResponse(){
+     if(_isLoading){
+      return const SizedBox(
+        width: 100,
+        height: 100,
+        child: Center(
+          child: CircularProgressIndicator()
+        ),
+      );
+    }
+    else if(productInfo['viton'] == null || productInfo['viton'] == "" ) {
+      return Container();
+    }
+    else{
+      return ClipRRect(
+        child: Image.network(
+          productInfo['viton'] ?? '',
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+          // errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+          // loadingBuilder: (context, child, loadingProgress) {
+          //   if (loadingProgress == null) return child;
+          //   return Center(
+          //     child: CircularProgressIndicator(
+          //       value: loadingProgress.expectedTotalBytes != null
+          //           ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+          //           : null,
+          //     ),
+          //   );
+          // },
+        ),
+      );
+    }
   }
 
   @override
@@ -197,7 +286,7 @@ class CartItemCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-    
+                          generate();
                         },
                         style: ElevatedButton.styleFrom(
                           elevation: 5, // Shadow depth
@@ -246,6 +335,7 @@ class CartItemCard extends StatelessWidget {
             ),
           ]
         ),
+        showResponse(),
         const Divider(
           thickness: 4,
           indent: 80,
