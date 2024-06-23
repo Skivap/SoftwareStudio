@@ -3,7 +3,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:io';
+import 'package:universal_io/io.dart' as universal_io;
+import 'dart:io' as io;
+
 
 import 'dart:math' as math;
 
@@ -189,29 +191,27 @@ class _CartItemCardState extends State<CartItemCard>  {
         });
       }
 
-      FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('cart')
-        .doc(cartItemData['cartId'])
-        .update({
-          "url": "generating"
-        });
-        
       var result = await fetchVitonResult(
         "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
         "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
       );
 
-      FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('cart')
-        .doc(cartItemData['cartId'])
-        .update({
-          "url": result
-        });
-      
+      try {
+          // Attempt to update the document in Firestore
+          await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('cart')
+            .doc(cartItemData['cartId'])
+            .update({
+              "url": result
+            });
+          print("Document successfully updated.");
+        } catch (e) {
+          // Handle the error
+          print("Error updating document: $e");
+        }
+
       if(_isMounted){
         setState(() {
           _isLoading = false;
@@ -248,12 +248,11 @@ class _CartItemCardState extends State<CartItemCard>  {
           print("Error fetching document: ${snapshot.error}");
           return Container();
         }
-
+        
         if (!snapshot.hasData || snapshot.data!.data() == null) {
           print("Document does not exist or is empty.");
           return Container();
         }
-
         Map<String, dynamic>? documentData = snapshot.data!.data() as Map<String, dynamic>?;
         if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
           return Container();
@@ -302,41 +301,103 @@ class _CartItemCardState extends State<CartItemCard>  {
 
   final ImagePicker _picker = ImagePicker();
 
+  Future<String?> uploadImageWeb(XFile image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('viton/$filename');
+      UploadTask uploadTask = storageRef.putData(await image.readAsBytes());
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
+      return null;
+    }
+  }
+  Future<String?> uploadImage(io.File image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('viton/$filename');
+      UploadTask uploadTask = storageRef.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
+      return null;
+    }
+  }
+
   void uploadPictureFromCamera() async {
     try {
+
+      bool shouldUpload = await showUploadDialog(context);
+      if (!shouldUpload) {
+        print("User chose not to upload an image.");
+        return;
+      }
       // Capture an image using the camera
-      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-      if (image == null) return; // User cancelled the camera
+      XFile? myimage = await _picker.pickImage(source: ImageSource.camera);
+      if (myimage == null) {
+        print("Camera capture cancelled; attempting to pick from gallery.");
+        myimage = await _picker.pickImage(source: ImageSource.gallery);
+        if (myimage == null) {
+          print("No image selected from the gallery either.");
+          return;
+        }
+      }
+      String? _imageUrl;
+      io.File? image_phone;
 
-      // Convert XFile to a File object
-      File imageFile = File(image.path);
-
-      // Upload image to Firebase Storage
-      String fileName = 'uploads/${DateTime.now().millisecondsSinceEpoch}.png';
-      FirebaseStorage storage = FirebaseStorage.instance;
-      Reference ref = storage.ref().child(fileName);
-      UploadTask uploadTask = ref.putFile(imageFile);
-
-      // retrieve the uploaded image URL
-      uploadTask.whenComplete(() async {
-        String imageUrl = await ref.getDownloadURL();
-        print("Upload complete, URL: $imageUrl");
-        FirebaseFirestore.instance
+      if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
+        _imageUrl = await uploadImage(image_phone!);
+      }
+      else {
+         _imageUrl = await uploadImageWeb(myimage);
+      } 
+     FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
           .update({
-            "bodypic": imageUrl
+            "bodypic": _imageUrl
         });
-        // Here you can call other functions to update your UI or state with the new image URL
-      }).catchError((error) {
-        print("Error in uploading image: $error");
-      });
+      if(mounted){
+        setState(() {
+          link_bd = _imageUrl;
+        });
+      }
     } catch (e) {
       print("Error taking image: $e");
     }
   }
 
-
+  Future<bool> showUploadDialog(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Upload Image'),
+          content: Text('Please upload your image of your full body'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false); // Dismisses the dialog and returns false
+              },
+            ),
+            TextButton(
+              child: Text('Continue'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Dismisses the dialog and returns true
+              },
+            ),
+          ],
+        );
+      },
+    ) ?? false; // Return false if dialog is dismissed by back button or tapping outside the dialog
+  }
 
   @override
   Widget build(BuildContext context) {
