@@ -47,7 +47,7 @@ class _UserSettingsState extends State<UserSettings> {
         if (mounted) {
           setState(() {
             username = querySnapshot.data()?['name'] ?? '';
-            imageLink = querySnapshot.data()?['imageLink'] ?? '';
+            imageLink = querySnapshot.data()?['profileLink'] ?? '';
           });
         }
       } else {

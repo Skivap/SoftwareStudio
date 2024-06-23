@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:universal_io/io.dart' as universal_io;
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -22,6 +23,7 @@ class _AccountSettings extends State<AccountSettings> {
   late User? user;
   late String? userId;
   String imageLink = '';
+  String profileLink = ''; 
   String username = '';
   String gender = '';
   String email = '';
@@ -57,6 +59,7 @@ class _AccountSettings extends State<AccountSettings> {
           setState(() {
             username = querySnapshot.data()?['name'] ?? '';
             imageLink = querySnapshot.data()?['imageLink'] ?? '';
+            profileLink = querySnapshot.data()?['profileLink'] ?? '';
             gender = querySnapshot.data()?['gender'] ?? 'Male';
             email = querySnapshot.data()?['email'] ?? '';
             phone = querySnapshot.data()?['phone'] ?? '';
@@ -92,6 +95,7 @@ class _AccountSettings extends State<AccountSettings> {
         'email': _emailController.text,
         'phone': _phoneController.text,
         'imageLink': imageLink,
+        'profileLink' :_imageUrl,
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
@@ -103,29 +107,59 @@ class _AccountSettings extends State<AccountSettings> {
       );
     }
   }
-
   Future<void> pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
+    if (pickedImage != null) {
       try{
-        final io.File imageFile = io.File(pickedFile.path);
-        final Reference storageReference = FirebaseStorage.instance
-            .ref()
-            .child('profile_images/$userId.jpg');
-        final UploadTask uploadTask = storageReference.putFile(imageFile);
-
-        final TaskSnapshot downloadUrl = await uploadTask;
-        final String url = await downloadUrl.ref.getDownloadURL();
-
+        if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
         setState(() {
-          imageLink = url;
+          _pickedImage = io.File(pickedImage.path);
+          
         });
+      } else {
+        String? uploadedImageUrl = await uploadImageWeb(pickedImage);
+        setState(() {
+          _imageUrl = uploadedImageUrl;
+        });
+        print('success $uploadedImageUrl');
+      }
+      
       }
       catch(e){
         print("error at $e");
       }
+    }
+  }
+  
+  Future<String?> uploadImage(io.File image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
+      UploadTask uploadTask = storageRef.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
+      return null;
+    }
+  }
+
+  Future<String?> uploadImageWeb(XFile image) async {
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('product_images/$filename');
+      UploadTask uploadTask = storageRef.putData(await image.readAsBytes());
+      TaskSnapshot taskSnapshot = await uploadTask;
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading image: $e')),
+      );
+      return null;
     }
   }
 
@@ -203,11 +237,12 @@ class _AccountSettings extends State<AccountSettings> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: NetworkImage(imageLink),
+                          image: NetworkImage(_imageUrl != null ? _imageUrl !: imageLink),
                         ),
                       ),
                     ),
                   ),
+                  
                   Positioned(
                     bottom: 10,
                     right: 10,
