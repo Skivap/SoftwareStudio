@@ -138,6 +138,8 @@ class _CartItemCardState extends State<CartItemCard>  {
   bool _isLoading = false;
 
   void generate() async {
+    
+    if(productInfo['viton'] != null && productInfo['viton'] != "") return;
     if(_isLoading) return;
 
     setState(() {
@@ -150,6 +152,7 @@ class _CartItemCardState extends State<CartItemCard>  {
     );
     
     setState(() {
+      _isLoading = false;
       productInfo['viton'] = result;
       print(result);
     });
