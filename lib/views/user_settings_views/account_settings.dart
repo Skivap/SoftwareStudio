@@ -11,7 +11,12 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:universal_io/io.dart' as universal_io;
 
 class AccountSettings extends StatefulWidget {
-  const AccountSettings({super.key});
+  final Function(String? userId) superGetUserInfo;
+
+  const AccountSettings({
+    super.key,
+    required this.superGetUserInfo
+  });
 
   @override
   State<AccountSettings> createState() {
@@ -22,7 +27,8 @@ class AccountSettings extends StatefulWidget {
 class _AccountSettings extends State<AccountSettings> {
   late User? user;
   late String? userId;
-  String profileLink = ''; 
+  late Function(String? userId) superGetUserInfo;
+  String profileLink = 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'; 
   String username = '';
   String gender = '';
   String email = '';
@@ -42,6 +48,7 @@ class _AccountSettings extends State<AccountSettings> {
     user = FirebaseAuth.instance.currentUser;
     userId = user?.uid ?? '';
     getUserInfo();
+    superGetUserInfo = widget.superGetUserInfo;
   }
 
   Future<void> getUserInfo() async {
@@ -97,21 +104,26 @@ class _AccountSettings extends State<AccountSettings> {
         'phone': _phoneController.text,
         'profileLink': _imageUrl ?? profileLink,
       });
+      
+      superGetUserInfo(userId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully')),
       );
     } catch (e) {
       print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile')),
-      );
+      try{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update profile')),
+        );
+      }
+      catch(e){}
     }
   }
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
+    
     if (pickedImage != null) {
       setState(() {
         _pickedImage = io.File(pickedImage.path);
@@ -198,6 +210,7 @@ class _AccountSettings extends State<AccountSettings> {
               height: myHeight * 0.18,
               decoration: BoxDecoration(color: theme.colorScheme.tertiary),
               child: Stack(
+                alignment: Alignment.center,
                 children: [
                   Align(
                     alignment: Alignment.center,

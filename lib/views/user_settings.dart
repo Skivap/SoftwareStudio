@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/views/user_settings_views/account_settings.dart';
 import 'package:prototype_ss/views/user_settings_views/appearance_settings.dart';
@@ -87,27 +89,31 @@ class _UserSettingsState extends State<UserSettings> {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.only(left: 20, top: 20),
               height: myHeight * 0.125,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  CircleAvatar(
-                    radius: myWidth * 0.1,
-                    backgroundImage: imageLink.isNotEmpty ? NetworkImage(imageLink) : null,
-                    backgroundColor: Colors.grey.shade300,
-                    child: imageLink.isEmpty ? Icon(Icons.person, size: 40, color: theme.colorScheme.onPrimary) : null,
+                  Center(
+                    child: CircleAvatar(
+                      radius: myWidth * 0.1,
+                      backgroundImage: imageLink.isNotEmpty ? NetworkImage(imageLink) : null,
+                      backgroundColor: Colors.grey.shade300,
+                      child: imageLink.isEmpty ? Icon(Icons.person, size: 40, color: theme.colorScheme.onPrimary) : null,
+                    ),
                   ),
-                  const SizedBox(width: 10,),
-                  SizedBox(
-                    width: myWidth * 0.4,
-                    child: Text(
-                      username,
-                      style:  TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                        color: theme.colorScheme.onPrimary,
+                  const SizedBox(width: 30,),
+                  Center(
+                    child: SizedBox(
+                      width: myWidth * 0.4,
+                      child: Text(
+                        username,
+                        style:  TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: theme.colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),
@@ -119,7 +125,7 @@ class _UserSettingsState extends State<UserSettings> {
               leading: Icon(Icons.account_circle, color: theme.colorScheme.onPrimary),
               title: Text('Account', style: TextStyle(color: theme.colorScheme.onPrimary)),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettings()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AccountSettings(superGetUserInfo: getUserInfo)));
               },
             ),
             ListTile(
