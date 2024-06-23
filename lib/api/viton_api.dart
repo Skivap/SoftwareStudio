@@ -1,8 +1,11 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // For json decoding
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
-  var url = Uri.http('140.114.202.91:5000', '/viton/', {
+  String hostApi = dotenv.env['HOST_API']!;
+
+  var url = Uri.http(hostApi, '/viton/', {
     'bgUrl': bgUrl,
     'grUrl': grUrl
   });
