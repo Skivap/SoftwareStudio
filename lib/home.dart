@@ -121,7 +121,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
       backgroundColor: theme.colorScheme.primary,
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          labelTextStyle: MaterialStateProperty.all(
+          labelTextStyle: WidgetStateProperty.all(
             TextStyle(
               color: theme.colorScheme.onPrimary
             )
@@ -140,31 +140,19 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
           selectedIndex: _currentPageIndex,
           destinations: const <Widget>[
             NavigationDestination(
-              // icon: Badge(child: Icon(Icons.home)),
               icon: Icon(Icons.home),
               label: 'Home',
             ),
             NavigationDestination(
               icon: Icon(Icons.search),
-              // icon: Badge(child: Icon(Icons.search)),
               label: 'Search',
             ),
             NavigationDestination(
               icon: Icon(Icons.checkroom_rounded),
-              // icon: Badge(child: Icon(Icons.shopping_cart)),
               label: 'Wardrobe',
             ),
-            // NavigationDestination(
-            //   icon: Icon(Icons.messenger_sharp),
-            //   // icon: Badge(
-            //   //   label: Text('2'),
-            //   //   child: Icon(Icons.messenger_sharp),
-            //   // ),
-            //   label: 'Message',
-            // ),
             NavigationDestination(
               icon: Icon(Icons.settings_rounded),
-              //icon: Badge(child: Icon(Icons.notifications_sharp)),
               label: 'Settings',
             ),
           ]

@@ -4,6 +4,7 @@ import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/service/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prototype_ss/views/user_page.dart';
 import 'package:prototype_ss/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -177,29 +178,39 @@ class _ProductState extends State<ProductContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20,),
-          Row(
-            children: [
-              if (widget.showExitButton)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: theme.colorScheme.onPrimary),
-                    onPressed: () => Navigator.of(context).pop(),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserPage(userId: widget.productData.sellerID),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                if (widget.showExitButton)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: theme.colorScheme.onPrimary),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                const SizedBox(width: 5),
+                CircleAvatar(
+                  backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
+                ),
+                const SizedBox(width: 8.0),
+                Text(
+                  username,
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              const SizedBox(width: 5),
-              CircleAvatar(
-                backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
-              ),
-              const SizedBox(width: 8.0),
-              Text(
-                username,
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 10.0),
           Container(

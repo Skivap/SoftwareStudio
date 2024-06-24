@@ -7,9 +7,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ProductsProvider with ChangeNotifier {
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
+  List<Product> _userProducts = [];
 
   List<Product> get products => _filteredProducts;
   List<Product> get allProducts => _allProducts;
+  List<Product> get userProducts => _userProducts;
 
   Future<void> fetchProducts() async {
     try {
@@ -20,6 +22,25 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       print("Error fetching products: $e");
     }
+  }
+
+  Future<void> fetchUserProducts(String userId) async {
+    try {
+      cleanUserProducts();
+      var snapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where('sellerId', isEqualTo: userId)
+          .get();
+      _userProducts = snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+      notifyListeners();
+    } catch (e) {
+      print("Error fetching user products: $e");
+    }
+  }
+  
+  void cleanUserProducts(){
+    _userProducts = [];
+    notifyListeners();
   }
 
   void filterProducts(String searchQuery) 
