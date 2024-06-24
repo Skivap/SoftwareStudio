@@ -375,34 +375,34 @@ class _ShoppingCartState extends State<ShoppingCart> {
                         Navigator.pop(context);
                       },
                       style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                          (Set<WidgetState> states) {
-                            if (states.contains(WidgetState.pressed)) {
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
                               return theme.colorScheme.primary.withOpacity(0.5); // Lighten the color when button is pressed
-                            } else if (states.contains(WidgetState.disabled)) {
+                            } else if (states.contains(MaterialState.disabled)) {
                               return theme.colorScheme.onSurface.withOpacity(0.12);
                             } // Disabled color
                             return theme.colorScheme.primary; // Default color
                           },
                         ),
-                        foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                          (Set<WidgetState> states) {
-                            if (states.contains(WidgetState.disabled)) {
+                        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.disabled)) {
                               return Colors.grey; // Color when button is disabled
                             }
                             return theme.colorScheme.onPrimary; // Text color
                           },
                         ),
-                        elevation: WidgetStateProperty.resolveWith<double>(
-                          (Set<WidgetState> states) {
-                            if (states.contains(WidgetState.pressed)) {
+                        elevation: MaterialStateProperty.resolveWith<double>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
                               return 0.0; // No elevation when pressed
                             }
                             return 4.0; // Default elevation
                           },
                         ),
-                        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
-                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0), // Rounded corners
                             side: BorderSide(color: theme.colorScheme.primary), // Border color
