@@ -10,6 +10,7 @@ import 'dart:io' as io;
 import 'dart:math' as math;
 
 import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/api/viton_api.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,20 +42,14 @@ class _CartItemCardState extends State<CartItemCard>  {
   late String userId;
   late Map<String, dynamic> userData;
 
-  bool _isMounted = false;
-  String? link_vton;
-  String? link_bd;
-
   @override
   void initState(){
     super.initState();
     _loadData();
-    _isMounted = true;
   }
 
   @override
   void dispose() {
-    _isMounted = false;
     super.dispose();
   }
 
@@ -63,23 +58,12 @@ class _CartItemCardState extends State<CartItemCard>  {
     cartItemData = widget.cartItemData;
     removeFromCart = widget.removeFromCart;
     userId = widget.userId;
-    FirebaseFirestore.instance
-      .collection('users')
-      .doc(userId)
-      .get()
-      .timeout(const Duration(seconds: 10))
-      .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        // Handle the retrieved data, e.g., convert to a model or use a Map
-        userData = documentSnapshot.data() as Map<String, dynamic>;
-        link_bd = userData["bodypic"];
-      } else {
-        print('No data found for user $userId');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final provider = Provider.of<VitonProvider>(context, listen: false);
+        provider.loadData(userId, cartItemData['cartId']);
       }
-    }).catchError((error) {
-      print("Error getting user data: $error");
     });
-
   }
 
   @override
@@ -93,6 +77,7 @@ class _CartItemCardState extends State<CartItemCard>  {
   }
 
   void _showProductDetails(BuildContext context) {
+    final provider = Provider.of<VitonProvider>(context, listen: false);
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
       context: context,
@@ -109,7 +94,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                   child: ClipRRect(
                     // borderRadius: BorderRadius.circular(10.0),
                     child: Image.network(
-                      link_vton ?? productInfo['imageUrl'] ?? '',
+                      provider.link_vton[cartItemData['cartId']] ?? productInfo['imageUrl'] ?? '',
                       fit: BoxFit.cover,
                       height: 450,
                       width: double.infinity,
@@ -177,200 +162,132 @@ class _CartItemCardState extends State<CartItemCard>  {
     );
   }
 
-  bool _isLoading = false;
-
-  void generate() async {
-
-    try{
-      if(productInfo['viton'] != null && productInfo['viton'] != "") return;
-      if(_isLoading) return;
-
-      if(_isMounted){
-        setState(() {
-          _isLoading = true;
-        });
-      }
-
-      var result = await fetchVitonResult(
-        "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
-        "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
-      );
-
-      try {
-          // Attempt to update the document in Firestore
-          await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('cart')
-            .doc(cartItemData['cartId'])
-            .update({
-              "url": result
-            });
-          print("Document successfully updated.");
-        } catch (e) {
-          // Handle the error
-          print("Error updating document: $e");
-        }
-
-      if(_isMounted){
-        setState(() {
-          _isLoading = false;
-          print(result);
-        });
-      }
-    }
-    catch(e){
-      print("error as $e");
-      return;
-    }
-  }
-
   Widget showResponseWithFutureBuilder(ThemeData theme) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('cart')
-        .doc(cartItemData['cartId'])
-        .get()
-        .timeout(const Duration(seconds: 10)),
-      builder: (context, snapshot) {
-        if (_isLoading || snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            width: 100,
-            height: 100,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        if (snapshot.hasError) {
-          print("Error fetching document: ${snapshot.error}");
-          return Container();
-        }
+    final provider = Provider.of<VitonProvider>(context, listen: true);
+
+    String? vtonLink = provider.link_vton[cartItemData['cartId']];
+    bool _isLoading = provider.isLoading[cartItemData['cartId']] ?? false;
+
+    // print("$vtonLink, $_isLoading");
+    if(vtonLink == null && _isLoading == false){
+      return Container();
+    }
+    if(_isLoading){
+      return const SizedBox(
+        width: 150,
+        height: 150,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: theme.colorScheme.onPrimary, // Specify the color of the border
+          width: 2.0, // Specify the width of the border
+        ),
+      //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
+      ),
+      child: ClipRRect(
+        // borderRadius: BorderRadius.circular(15.0),
+        child: Image.network(
+          vtonLink ?? '',
+          fit: BoxFit.cover,
+          width: 150,
+          height: 150,
+          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+            if (loadingProgress == null) {
+              return child; // image has loaded
+            } else {
+              return Center(
+                child: SizedBox(
+                  width: 150, // Explicit width for the loader
+                  height: 150, // Explicit height for the loader
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                ),
+              );
+            } 
+          }
+        ),
         
-        if (!snapshot.hasData || snapshot.data!.data() == null) {
-          print("Document does not exist or is empty.");
-          return Container();
-        }
-        Map<String, dynamic>? documentData = snapshot.data!.data() as Map<String, dynamic>?;
-        if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
-          return Container();
-        } else {
-          link_vton = documentData['url'];
-          return Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: theme.colorScheme.onPrimary, // Specify the color of the border
-                width: 2.0, // Specify the width of the border
-              ),
-            //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
-            ),
-            child: ClipRRect(
-              // borderRadius: BorderRadius.circular(15.0),
-              child: Image.network(
-                documentData['url'] ?? '',
-                fit: BoxFit.cover,
-                width: 150,
-                height: 150,
-                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child; // image has loaded
-                  } else {
-                    return Center(
-                      child: SizedBox(
-                        width: 150, // Explicit width for the loader
-                        height: 150, // Explicit height for the loader
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
-                      ),
-                    );
-                  } 
-                }
-              ),
-              
-            ),
-          );
-        }
-      },
+      ),
     );
-  }
-
-  final ImagePicker _picker = ImagePicker();
-
-  Future<String?> uploadImageWeb(XFile image) async {
-    try {
-      String filename = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance.ref().child('viton/$filename');
-      UploadTask uploadTask = storageRef.putData(await image.readAsBytes());
-      TaskSnapshot taskSnapshot = await uploadTask;
-      return await taskSnapshot.ref.getDownloadURL();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
-      return null;
-    }
-  }
-  Future<String?> uploadImage(io.File image) async {
-    try {
-      String filename = DateTime.now().millisecondsSinceEpoch.toString();
-      Reference storageRef = FirebaseStorage.instance.ref().child('viton/$filename');
-      UploadTask uploadTask = storageRef.putFile(image);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      return await taskSnapshot.ref.getDownloadURL();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
-      return null;
-    }
-  }
-
-  void uploadPictureFromCamera() async {
-    try {
-
-      bool shouldUpload = await showUploadDialog(context);
-      if (!shouldUpload) {
-        print("User chose not to upload an image.");
-        return;
-      }
-      // Capture an image using the camera
-      XFile? myimage = await _picker.pickImage(source: ImageSource.camera);
-      if (myimage == null) {
-        print("Camera capture cancelled; attempting to pick from gallery.");
-        myimage = await _picker.pickImage(source: ImageSource.gallery);
-        if (myimage == null) {
-          print("No image selected from the gallery either.");
-          return;
-        }
-      }
-      String? _imageUrl;
-      io.File? image_phone;
-
-      if (universal_io.Platform.isAndroid || universal_io.Platform.isIOS) {
-        _imageUrl = await uploadImage(image_phone!);
-      }
-      else {
-         _imageUrl = await uploadImageWeb(myimage);
-      } 
-     FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({
-            "bodypic": _imageUrl
-        });
-      if(mounted){
-        setState(() {
-          link_bd = _imageUrl;
-        });
-      }
-    } catch (e) {
-      print("Error taking image: $e");
-    }
+    // return FutureBuilder<DocumentSnapshot>(
+    //   future: FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(userId)
+    //     .collection('cart')
+    //     .doc(cartItemData['cartId'])
+    //     .get()
+    //     .timeout(const Duration(seconds: 10)),
+    //   builder: (context, snapshot) {
+    //     if (provider.isLoading[cartItemData['cartId']] == true || snapshot.connectionState == ConnectionState.waiting) {
+    //       return const SizedBox(
+    //         width: 100,
+    //         height: 100,
+    //         child: Center(
+    //           child: CircularProgressIndicator(),
+    //         ),
+    //       );
+    //     }
+    //     if (snapshot.hasError) {
+    //       print("Error fetching document: ${snapshot.error}");
+    //       return Container();
+    //     }
+        
+    //     if (!snapshot.hasData || snapshot.data!.data() == null) {
+    //       print("Document does not exist or is empty.");
+    //       return Container();
+    //     }
+    //     Map<String, dynamic>? documentData = snapshot.data!.data() as Map<String, dynamic>?;
+    //     if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
+    //       return Container();
+    //     } else {
+    //       provider.link_vton = documentData['url'];
+    //       return Container(
+    //         decoration: BoxDecoration(
+    //           border: Border.all(
+    //             color: theme.colorScheme.onPrimary, // Specify the color of the border
+    //             width: 2.0, // Specify the width of the border
+    //           ),
+    //         //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
+    //         ),
+    //         child: ClipRRect(
+    //           // borderRadius: BorderRadius.circular(15.0),
+    //           child: Image.network(
+    //             documentData['url'] ?? '',
+    //             fit: BoxFit.cover,
+    //             width: 150,
+    //             height: 150,
+    //             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+    //               if (loadingProgress == null) {
+    //                 return child; // image has loaded
+    //               } else {
+    //                 return Center(
+    //                   child: SizedBox(
+    //                     width: 150, // Explicit width for the loader
+    //                     height: 150, // Explicit height for the loader
+    //                     child: CircularProgressIndicator(
+    //                       value: loadingProgress.expectedTotalBytes != null
+    //                           ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+    //                           : null,
+    //                     ),
+    //                   ),
+    //                 );
+    //               } 
+    //             }
+    //           ),
+              
+    //         ),
+    //       );
+    //     }
+    //   },
+    // );
   }
 
   Future<bool> showUploadDialog(BuildContext context) async {
@@ -399,8 +316,15 @@ class _CartItemCardState extends State<CartItemCard>  {
     ) ?? false; // Return false if dialog is dismissed by back button or tapping outside the dialog
   }
 
+  void warning(BuildContext context, String error){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<VitonProvider>(context, listen: false);
     final theme = Provider.of<ThemeProvider>(context).theme;
     return Container(
       margin: const EdgeInsets.only(left:20, bottom: 20),
@@ -520,11 +444,13 @@ class _CartItemCardState extends State<CartItemCard>  {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          if(link_bd == null){
-                            uploadPictureFromCamera();
+                          if(provider.link_bd == null){
+                            print("Need to Upload");
+                            provider.uploadPictureFromCamera(context, warning, showUploadDialog);
                           }
                           else{
-                            generate();
+                            print("Generate");
+                            provider.generate(cartItemData['cartId']);
                           }
                           
                         },

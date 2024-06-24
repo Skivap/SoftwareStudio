@@ -3,6 +3,9 @@ import 'dart:convert'; // For json decoding
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
+
+  print("Calling API");
+
   // String hostApi = dotenv.env['HOST_API']!;
 
   // var url = Uri.http(hostApi, '/viton/', {
@@ -21,6 +24,10 @@ Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
   // } catch (e) {
   //   return 'Failed to connect or retrieve data: $e';
   // }
-  await Future.delayed(const Duration(seconds: 10));
+  await Future.delayed(const Duration(seconds: 3));
+
+  print("Done");
   return bgUrl;
+
+
 }
