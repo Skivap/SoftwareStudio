@@ -161,162 +161,164 @@ class _ProductState extends State<ProductContent> {
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).theme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 2,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20,),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserPage(userId: widget.productData.sellerID),
-                ),
-              );
-            },
-            child: Row(
-              children: [
-                if (widget.showExitButton)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: theme.colorScheme.onPrimary),
-                      onPressed: () => Navigator.of(context).pop(),
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 2,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20,),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserPage(userId: widget.productData.sellerID),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  if (widget.showExitButton)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: Icon(Icons.close, color: theme.colorScheme.onPrimary),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  const SizedBox(width: 5),
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Text(
+                    username,
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                const SizedBox(width: 5),
-                CircleAvatar(
-                  backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
-                ),
-                const SizedBox(width: 8.0),
-                Text(
-                  username,
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10.0),
-          Container(
-            decoration: BoxDecoration(color: theme.colorScheme.secondary),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxHeight: 400
-                ),
-                child: Image.network(
-                  widget.productData.imageUrl,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                  fit: BoxFit.contain,
-                  width: double.infinity,
+            const SizedBox(height: 10.0),
+            Container(
+              decoration: BoxDecoration(color: theme.colorScheme.secondary),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 400
+                  ),
+                  child: Image.network(
+                    widget.productData.imageUrl,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 8.0),
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0, right: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
-                      color: isLiked ? theme.colorScheme.tertiary : theme.colorScheme.onPrimary,
-                      onPressed: _toggleLike,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      color: theme.colorScheme.onPrimary,
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed:(){addProduct(widget.productData.sellerID);}, 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.secondary
-                  ),
-                  child: Row(
+            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, right: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        'Add',
-                        style: TextStyle( 
-                          color: theme.colorScheme.onPrimary,
-                          fontSize: 15,
-                        )
+                      IconButton(
+                        icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border),
+                        color: isLiked ? theme.colorScheme.tertiary : theme.colorScheme.onPrimary,
+                        onPressed: _toggleLike,
                       ),
-                      const SizedBox(width: 5),
-                      Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 20)
+                      IconButton(
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        color: theme.colorScheme.onPrimary,
+                        onPressed: () {},
+                      ),
                     ],
+                  ),
+                  ElevatedButton(
+                    onPressed:(){addProduct(widget.productData.sellerID);}, 
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Add',
+                          style: TextStyle( 
+                            color: theme.colorScheme.onPrimary,
+                            fontSize: 15,
+                          )
+                        ),
+                        const SizedBox(width: 5),
+                        Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 20)
+                      ],
+                    )
                   )
-                )
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$likes likes',
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimary,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  widget.productData.name,
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 2.0),
-                Text(
-                  widget.productData.description,
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimary,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Add a comment', 
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$likes likes',
                     style: TextStyle(
-                      color: Colors.grey[400], 
+                      color: theme.colorScheme.onPrimary,
                       fontSize: 14,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4.0),
+                  Text(
+                    widget.productData.name,
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 2.0),
+                  Text(
+                    widget.productData.description,
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4.0),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Add a comment', 
+                      style: TextStyle(
+                        color: Colors.grey[400], 
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20,),
-        ],
+            const SizedBox(height: 20,),
+          ],
+        ),
       ),
     );
   }

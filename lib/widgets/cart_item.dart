@@ -1,21 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:universal_io/io.dart' as universal_io;
-import 'dart:io' as io;
-
-
 import 'dart:math' as math;
-
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:prototype_ss/api/viton_api.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:prototype_ss/service/save_image.dart';
-import 'package:prototype_ss/widgets/generate_text.dart';
 
 class CartItemCard extends StatefulWidget {
   final Map<String, dynamic> productInfo;
@@ -32,7 +19,9 @@ class CartItemCard extends StatefulWidget {
   });
 
   @override
-  _CartItemCardState createState() => _CartItemCardState();
+  State<CartItemCard> createState() {
+    return _CartItemCardState();
+  }
 }
 
 class _CartItemCardState extends State<CartItemCard>  {
@@ -76,9 +65,10 @@ class _CartItemCardState extends State<CartItemCard>  {
     }
   }
 
-  void _showProductDetails(BuildContext context) {
+  void _showProductDetails(BuildContext context, ThemeData theme) {
     final provider = Provider.of<VitonProvider>(context, listen: false);
     showModalBottomSheet<dynamic>(
+      backgroundColor: theme.colorScheme.primary,
       isScrollControlled: true,
       context: context,
       builder: (context) {
@@ -116,40 +106,43 @@ class _CartItemCardState extends State<CartItemCard>  {
                 Text(
                   productInfo['name'] ?? 'Loading...',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-
+                    color: theme.colorScheme.onPrimary
                   ),
                 ),
                 const SizedBox(height: 10,),
                 Text(
                   productInfo.containsKey('price') ? '${productInfo['price']} NTD' : 'Loading...',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onPrimary
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   productInfo['description'] ?? 'Loading description...',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
+                    color: theme.colorScheme.onPrimary
                   ),
                 ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       onPressed: removeFromCart,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: theme.colorScheme.tertiary,
                       ),
-                      child: const Text(
+                      child: Text(
                         'Remove from Cart',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: theme.colorScheme.onPrimary),
                       ),
                     ),
                   ],
@@ -187,7 +180,7 @@ class _CartItemCardState extends State<CartItemCard>  {
           color: theme.colorScheme.onPrimary, // Specify the color of the border
           width: 2.0, // Specify the width of the border
         ),
-      //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
+      // borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
       ),
       child: ClipRRect(
         // borderRadius: BorderRadius.circular(15.0),
@@ -217,77 +210,6 @@ class _CartItemCardState extends State<CartItemCard>  {
         
       ),
     );
-    // return FutureBuilder<DocumentSnapshot>(
-    //   future: FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(userId)
-    //     .collection('cart')
-    //     .doc(cartItemData['cartId'])
-    //     .get()
-    //     .timeout(const Duration(seconds: 10)),
-    //   builder: (context, snapshot) {
-    //     if (provider.isLoading[cartItemData['cartId']] == true || snapshot.connectionState == ConnectionState.waiting) {
-    //       return const SizedBox(
-    //         width: 100,
-    //         height: 100,
-    //         child: Center(
-    //           child: CircularProgressIndicator(),
-    //         ),
-    //       );
-    //     }
-    //     if (snapshot.hasError) {
-    //       print("Error fetching document: ${snapshot.error}");
-    //       return Container();
-    //     }
-        
-    //     if (!snapshot.hasData || snapshot.data!.data() == null) {
-    //       print("Document does not exist or is empty.");
-    //       return Container();
-    //     }
-    //     Map<String, dynamic>? documentData = snapshot.data!.data() as Map<String, dynamic>?;
-    //     if (documentData == null || documentData['url'] == null || documentData['url'] == "") {
-    //       return Container();
-    //     } else {
-    //       provider.link_vton = documentData['url'];
-    //       return Container(
-    //         decoration: BoxDecoration(
-    //           border: Border.all(
-    //             color: theme.colorScheme.onPrimary, // Specify the color of the border
-    //             width: 2.0, // Specify the width of the border
-    //           ),
-    //         //   borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
-    //         ),
-    //         child: ClipRRect(
-    //           // borderRadius: BorderRadius.circular(15.0),
-    //           child: Image.network(
-    //             documentData['url'] ?? '',
-    //             fit: BoxFit.cover,
-    //             width: 150,
-    //             height: 150,
-    //             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-    //               if (loadingProgress == null) {
-    //                 return child; // image has loaded
-    //               } else {
-    //                 return Center(
-    //                   child: SizedBox(
-    //                     width: 150, // Explicit width for the loader
-    //                     height: 150, // Explicit height for the loader
-    //                     child: CircularProgressIndicator(
-    //                       value: loadingProgress.expectedTotalBytes != null
-    //                           ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-    //                           : null,
-    //                     ),
-    //                   ),
-    //                 );
-    //               } 
-    //             }
-    //           ),
-              
-    //         ),
-    //       );
-    //     }
-    //   },
-    // );
   }
 
   Future<bool> showUploadDialog(BuildContext context) async {
@@ -475,7 +397,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          _showProductDetails(context);
+                          _showProductDetails(context, theme);
                         },
                         style: ElevatedButton.styleFrom(
                           // elevation: 5, // Shadow depth
