@@ -45,17 +45,14 @@ class ProductsProvider with ChangeNotifier {
     Future.microtask(() => notifyListeners());
   }
 
-  void filterProducts(String searchQuery) async {
+  void filterProducts(String searchQuery) {
     _filteredProducts = List.from(_allProducts);
-
-    print("total = ${_allProducts.length}");
-
+    
     if (searchQuery.isNotEmpty) {
       _filteredProducts = _filteredProducts.where((product) {
-        return product.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-               product.description.toLowerCase().contains(searchQuery.toLowerCase());
+        return product.name.toLowerCase().contains(searchQuery.toLowerCase());
       }).toList();
     }
-    Future.microtask(() => notifyListeners());
+    notifyListeners(); // Make sure to notify listeners after filtering
   }
 }

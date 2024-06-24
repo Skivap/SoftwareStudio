@@ -76,9 +76,9 @@ class _SearchGridState extends State<SearchGrid> {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).theme;
-
     final productsProvider = Provider.of<ProductsProvider>(context);
     var products = productsProvider.products;
+    
     return Container(
       decoration: BoxDecoration(color: theme.colorScheme.primary),
       child: Scaffold(

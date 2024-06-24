@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:prototype_ss/provider/product_provider.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/views/main_page.dart';
 import 'package:prototype_ss/views/shopping_cart.dart';
@@ -92,6 +93,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
 
     Widget buildSearchBar(BuildContext context, StateSetter setState) {
       final theme = Provider.of<ThemeProvider>(context).theme;
+      final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
       return TextField(
         style: TextStyle(color: theme.colorScheme.onPrimary),
         decoration: InputDecoration(
@@ -108,6 +110,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
           setState(() {
             _searchQuery = query;
           });
+          productsProvider.filterProducts(query);
         },
       );
     }
