@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class ProductsProvider with ChangeNotifier {
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
@@ -26,28 +25,30 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchUserProducts(String userId) async {
     try {
-      cleanUserProducts();
+      // Clear the previous user's products before fetching the new user's products
+      _userProducts = [];
+      Future.microtask(() => notifyListeners());
+
       var snapshot = await FirebaseFirestore.instance
           .collection('products')
           .where('sellerId', isEqualTo: userId)
           .get();
       _userProducts = snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
-      notifyListeners();
+      Future.microtask(() => notifyListeners());
     } catch (e) {
       print("Error fetching user products: $e");
     }
   }
-  
-  void cleanUserProducts(){
+
+  void cleanUserProducts() {
     _userProducts = [];
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
   }
 
-  void filterProducts(String searchQuery) 
-  async {
-     _filteredProducts = List.from(_allProducts);
+  void filterProducts(String searchQuery) async {
+    _filteredProducts = List.from(_allProducts);
 
-     print("total = ${_allProducts.length}");
+    print("total = ${_allProducts.length}");
 
     if (searchQuery.isNotEmpty) {
       _filteredProducts = _filteredProducts.where((product) {
@@ -55,7 +56,6 @@ class ProductsProvider with ChangeNotifier {
                product.description.toLowerCase().contains(searchQuery.toLowerCase());
       }).toList();
     }
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
   }
 }
-

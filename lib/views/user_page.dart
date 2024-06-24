@@ -32,7 +32,6 @@ class _UserPage extends State<UserPage> {
 
   @override
   void dispose(){
-    Provider.of<ProductsProvider>(context, listen: false).cleanUserProducts();
     super.dispose();
   }
 
