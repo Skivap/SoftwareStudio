@@ -42,7 +42,8 @@ class _SignUpPageState extends State<SignUpPage> {
         await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
           'name': name,
           'theme': 'classicLightTheme',
-          'gender': 'Male'
+          'gender': 'Male',
+          'profileLink': 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'
         });
         await fetchAndApplyTheme(user.uid);
         widget.changePage("Home");

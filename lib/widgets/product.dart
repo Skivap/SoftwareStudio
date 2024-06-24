@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/views/user_page.dart';
 import 'package:prototype_ss/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'dart:io' as io;
 
@@ -38,7 +39,7 @@ class _ProductState extends State<ProductContent> {
 
   io.File? _pickedImage;
   String? _imageUrl;
-  String imageLink = '';
+  String profileLink = '';
   String username = '';
   late int likes;
   bool isLiked = false; // Provide a default value for isLiked
@@ -93,7 +94,7 @@ class _ProductState extends State<ProductContent> {
         if (mounted) {
           setState(() {
             username = querySnapshot.data()?['name'] ?? '';
-            imageLink = querySnapshot.data()?['imageLink'] ?? '';
+            profileLink = querySnapshot.data()?['profileLink'] ?? '';
           });
         }
       } else {
@@ -200,7 +201,7 @@ class _ProductState extends State<ProductContent> {
                     ),
                   const SizedBox(width: 5),
                   CircleAvatar(
-                    backgroundImage: NetworkImage(imageLink.isNotEmpty ? imageLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
+                    backgroundImage: NetworkImage(profileLink.isNotEmpty ? profileLink : 'https://free-icon-rainbow.com/i/icon_01993/icon_019930_256.jpg'),
                   ),
                   const SizedBox(width: 8.0),
                   Text(
@@ -302,14 +303,29 @@ class _ProductState extends State<ProductContent> {
                       fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 4.0),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Add a comment', 
-                      style: TextStyle(
-                        color: Colors.grey[400], 
-                        fontSize: 14,
+                  const SizedBox(height: 20.0),
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5), 
+                        color: theme.colorScheme.tertiary
+                      ),
+                      padding: const EdgeInsets.all(9),
+                      child: InkWell(
+                        onTap: () async {
+                          if (widget.productData.link != '') {
+                            await launchUrl(Uri.parse(widget.productData.link));
+                          }
+                        },
+                        child: Text(
+                          'Buy Product', 
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimary, 
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -7,10 +7,10 @@ class Product {
   final String imageUrl;
   final String category;
   final String style;
-  final String season;
   final String sellerID;
   final String price;
   final int likes;
+  final String link;
   final List<dynamic> likedby;
   Product({
     required this.likes,
@@ -21,9 +21,9 @@ class Product {
     required this.imageUrl,
     required this.category,
     required this.style,
-    required this.season,
     required this.price,
-    required this.sellerID,
+    required this.sellerID, 
+    required this.link,
   });
 
   factory Product.fromFirestore(DocumentSnapshot doc) {
@@ -38,7 +38,7 @@ class Product {
       imageUrl: data['imageUrl'] ?? '',
       category: data['category'] ?? '',
       style: data['style'] ?? '',
-      season: data['season'] ?? '',
+      link: data['link'] ?? '',
       price: data['price'].toString(),
       sellerID: data['sellerId'] ?? '',
     );

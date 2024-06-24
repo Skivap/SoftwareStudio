@@ -43,7 +43,7 @@ final ThemeData lightForestTheme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFFF7DCB9),
-    onPrimary: Color.fromARGB(255, 160, 129, 97),
+    onPrimary: Color.fromARGB(255, 101, 81, 60),
     secondary: Color(0xFFB5C18E),
     onSecondary: Colors.black,
     tertiary: Color(0xFFAF8F6F),

@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously, no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:prototype_ss/widgets/cart_item.dart';
@@ -25,6 +24,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
   late User? _user;
   late String _userId;
   bool isLoading = true;
+  bool isLoading2 = false;
   String errorMessage = '';
   late List<Map<String, dynamic>> cartItems = [];
   late Map<String, dynamic> productInfo = {};
@@ -126,6 +126,9 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
   void removeFromCart(String cartId) async {
     try {
+      setState(() {
+        isLoading2 = true;
+      });
       await FirebaseFirestore.instance
           .collection('users')
           .doc(_userId)
@@ -155,6 +158,10 @@ class _ShoppingCartState extends State<ShoppingCart> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+    } finally {
+      setState(() {
+        isLoading2 = false;
+      });
     }
   }
 
@@ -174,8 +181,8 @@ class _ShoppingCartState extends State<ShoppingCart> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 24),
+                const CircularProgressIndicator(),
+                const SizedBox(width: 24),
                 Text(text),  // Optional text to describe the loading action
               ],
             ),
@@ -226,10 +233,10 @@ class _ShoppingCartState extends State<ShoppingCart> {
               context: context,
               builder: (context) {
                 return AlertDialog(
-                  title: Text('Enter Image URL'),
+                  title: const Text('Enter Image URL'),
                   content: TextField(
                     controller: urlController,
-                    decoration: InputDecoration(hintText: 'URL'),
+                    decoration: const InputDecoration(hintText: 'URL'),
                   ),
                   actions: [
                     TextButton(
@@ -237,7 +244,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                         Navigator.of(context).pop();
                         updateImageUrl(urlController.text);
                       },
-                      child: Text('Update'),
+                      child: const Text('Update'),
                     ),
                   ],
                 );
@@ -282,16 +289,16 @@ class _ShoppingCartState extends State<ShoppingCart> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
-                                  leading: Icon(Icons.image),
-                                  title: Text('Change Image from Gallery'),
+                                  leading: const Icon(Icons.image),
+                                  title: const Text('Change Image from Gallery'),
                                   onTap: () {
                                     Navigator.of(context).pop();
                                     pickImage();
                                   },
                                 ),
                                 ListTile(
-                                  leading: Icon(Icons.link),
-                                  title: Text('Enter Image URL'),
+                                  leading: const Icon(Icons.link),
+                                  title: const Text('Enter Image URL'),
                                   onTap: () {
                                     Navigator.of(context).pop();
                                     enterImageUrl();
@@ -367,41 +374,42 @@ class _ShoppingCartState extends State<ShoppingCart> {
                           }
                         Navigator.pop(context);
                       },
-                      child: const Text('Save'),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed)) {
+                        backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.pressed)) {
                               return theme.colorScheme.primary.withOpacity(0.5); // Lighten the color when button is pressed
-                            } else if (states.contains(MaterialState.disabled))
-                              return theme.colorScheme.onSurface.withOpacity(0.12); // Disabled color
+                            } else if (states.contains(WidgetState.disabled)) {
+                              return theme.colorScheme.onSurface.withOpacity(0.12);
+                            } // Disabled color
                             return theme.colorScheme.primary; // Default color
                           },
                         ),
-                        foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.disabled)) {
+                        foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.disabled)) {
                               return Colors.grey; // Color when button is disabled
                             }
                             return theme.colorScheme.onPrimary; // Text color
                           },
                         ),
-                        elevation: MaterialStateProperty.resolveWith<double>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed)) {
+                        elevation: WidgetStateProperty.resolveWith<double>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.pressed)) {
                               return 0.0; // No elevation when pressed
                             }
                             return 4.0; // Default elevation
                           },
                         ),
-                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0), // Rounded corners
                             side: BorderSide(color: theme.colorScheme.primary), // Border color
                           ),
                         ),
                       ),
+                      child: const Text('Save'),
                     ),
 
                   ],
@@ -421,82 +429,112 @@ class _ShoppingCartState extends State<ShoppingCart> {
     final theme = Provider.of<ThemeProvider>(context).theme;
     return Container(
       decoration: BoxDecoration(color: theme.colorScheme.primary),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: theme.colorScheme.secondary,
-          title: Text(
-            'Wardrobe',
-            style: TextStyle(
-              fontFamily: 'Abhaya Libre SemiBold', 
-              fontSize: 32,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onPrimary,
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: IconButton(
-                icon: const Icon(Icons.change_circle_outlined),
-                iconSize: 30,
-                color: theme.colorScheme.onPrimary,
-                onPressed: (){
-                  showchange(context, theme);
-                }
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: theme.colorScheme.primary,
-        body:
-        isLoading ? const Center(child: CircularProgressIndicator()) :
-        errorMessage.isNotEmpty ? Center(child: Text(errorMessage)) :
-        cartItems.isNotEmpty ? 
-          Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              padding: const EdgeInsets.only(top: 30),
-              height: myHeight * 0.92,
-              
-              child: ListView.builder(
-                padding: const EdgeInsets.only(
-                  left: 10,
-                  right: 10,
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              backgroundColor: theme.colorScheme.secondary,
+              title: Text(
+                'Wardrobe',
+                style: TextStyle(
+                  fontFamily: 'Abhaya Libre SemiBold', 
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onPrimary,
                 ),
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  Map<String, dynamic> cartItem = cartItems[index];
-                  String cartId = cartItem['cartId'];
-                  String productId = cartItem['productId'];
-                  Map<String, dynamic> productData = productInfo[productId] ?? {};
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      child: FadeInAnimation(
-                        child: CartItemCard(
-                          productInfo: productData,
-                          cartItemData: cartItem,
-                          removeFromCart: () {
-                            removeFromCart(cartId); 
-                            Navigator.pop(context);
-                          },
-                          userId: _userId,
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
-      
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: IconButton(
+                    icon: const Icon(Icons.change_circle_outlined),
+                    iconSize: 30,
+                    color: theme.colorScheme.onPrimary,
+                    onPressed: (){
+                      showchange(context, theme);
+                    }
+                  ),
+                ),
+              ],
             ),
-          ):
-           Center(
-            child: Text(
-              'Your Shopping Cart is empty. Explore our items!',
-              style: TextStyle(color: theme.colorScheme.onPrimary)
+            backgroundColor: theme.colorScheme.primary,
+            body:
+            isLoading ? const Center(child: CircularProgressIndicator()) :
+            errorMessage.isNotEmpty ? Center(child: Text(errorMessage)) :
+            cartItems.isNotEmpty ? 
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  padding: const EdgeInsets.only(top: 30),
+                  height: myHeight * 0.92,
+                  
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                    ),
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> cartItem = cartItems[index];
+                      String cartId = cartItem['cartId'];
+                      String productId = cartItem['productId'];
+                      Map<String, dynamic> productData = productInfo[productId] ?? {};
+                      return Dismissible(
+                        key: UniqueKey(),
+                        direction: DismissDirection.startToEnd,
+                        background: Container(
+                          color: theme.colorScheme.secondary.withOpacity(0.1),
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'Swipe to delete', 
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold
+                            )
+                          )
+                        ),
+                        onDismissed: (direction) {
+                          removeFromCart(cartId);
+                        },
+                        child: AnimationConfiguration.staggeredList(
+                          position: index,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            child: FadeInAnimation(
+                              child: CartItemCard(
+                                productInfo: productData,
+                                cartItemData: cartItem,
+                                removeFromCart: () {
+                                  removeFromCart(cartId); 
+                                  Navigator.pop(context);
+                                },
+                                userId: _userId,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ):
+               Center(
+                child: Text(
+                  'Your Shopping Cart is empty. Explore our items!',
+                  style: TextStyle(color: theme.colorScheme.onPrimary)
+                ),
+              )
+          ),
+          if (isLoading2)
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(color: theme.colorScheme.primary.withOpacity(0.5)),
+              child: const Center(child: CircularProgressIndicator()) 
             ),
-          )
+        ],
       ),
     );
   }
