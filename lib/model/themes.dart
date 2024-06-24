@@ -62,7 +62,7 @@ final ThemeData sunnyBeachTheme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFFCAF4FF),
-    onPrimary: Color(0xFF5AB2FF),
+    onPrimary: Color.fromARGB(255, 47, 116, 176),
     secondary: Color(0xFFA0DEFF),
     onSecondary: Colors.black,
     tertiary: Color(0xFFFFF9D0),

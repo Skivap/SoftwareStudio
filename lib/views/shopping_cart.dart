@@ -481,10 +481,10 @@ class _ShoppingCartState extends State<ShoppingCart> {
                       Map<String, dynamic> productData = productInfo[productId] ?? {};
                       return Dismissible(
                         key: UniqueKey(),
-                        direction: DismissDirection.startToEnd,
+                        direction: DismissDirection.endToStart,
                         background: Container(
                           color: theme.colorScheme.secondary.withOpacity(0.1),
-                          alignment: Alignment.centerLeft,
+                          alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Text(
                             'Swipe to delete', 

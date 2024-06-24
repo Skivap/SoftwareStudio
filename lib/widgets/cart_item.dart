@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prototype_ss/model/product_model.dart';
 import 'dart:math' as math;
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/provider/viton_provider.dart';
+import 'package:prototype_ss/widgets/product.dart';
 import 'package:provider/provider.dart';
 
 class CartItemCard extends StatefulWidget {
@@ -25,6 +27,7 @@ class CartItemCard extends StatefulWidget {
 }
 
 class _CartItemCardState extends State<CartItemCard>  {
+  late Product productData;
   late Map<String, dynamic> productInfo;
   late Map<String, dynamic> cartItemData;
   late void Function() removeFromCart;
@@ -44,6 +47,7 @@ class _CartItemCardState extends State<CartItemCard>  {
 
   void _loadData() async {
     productInfo = widget.productInfo;
+    productData = Product.fromMap(productInfo);
     cartItemData = widget.cartItemData;
     removeFromCart = widget.removeFromCart;
     userId = widget.userId;
@@ -68,90 +72,11 @@ class _CartItemCardState extends State<CartItemCard>  {
   void _showProductDetails(BuildContext context, ThemeData theme) {
     final provider = Provider.of<VitonProvider>(context, listen: false);
     showModalBottomSheet<dynamic>(
-      backgroundColor: theme.colorScheme.primary,
       isScrollControlled: true,
       context: context,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.9,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: ClipRRect(
-                    // borderRadius: BorderRadius.circular(10.0),
-                    child: Image.network(
-                      provider.link_vton[cartItemData['cartId']] ?? productInfo['imageUrl'] ?? '',
-                      fit: BoxFit.cover,
-                      height: 450,
-                      width: double.infinity,
-                      //errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10,),
-                Text(
-                  productInfo['name'] ?? 'Loading...',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary
-                  ),
-                ),
-                const SizedBox(height: 10,),
-                Text(
-                  productInfo.containsKey('price') ? '${productInfo['price']} NTD' : 'Loading...',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  productInfo['description'] ?? 'Loading description...',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: theme.colorScheme.onPrimary
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: removeFromCart,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.tertiary,
-                      ),
-                      child: Text(
-                        'Remove from Cart',
-                        style: TextStyle(color: theme.colorScheme.onPrimary),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (context){
+        return ProductContent(productData: productData, showExitButton: true, showSwipeDelete: true,);
+      }
     );
   }
 

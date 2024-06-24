@@ -14,11 +14,13 @@ import 'dart:io' as io;
 class ProductContent extends StatefulWidget {
   final Product productData;
   final bool showExitButton;
+  final bool showSwipeDelete;
 
   const ProductContent({
     super.key,
     required this.productData,
     this.showExitButton = false,
+    this.showSwipeDelete = false
   });
 
   @override
@@ -332,6 +334,23 @@ class _ProductState extends State<ProductContent> {
                 ],
               ),
             ),
+            if (widget.showSwipeDelete)
+               Column(
+                 children: [
+                  const SizedBox(height: 15),
+                   Center(
+                     child: Text(
+                      'Swipe left on clothes to remove!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimary,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 12
+                      )
+                                   ),
+                   ),
+                 ],
+               ),
             const SizedBox(height: 20,),
           ],
         ),

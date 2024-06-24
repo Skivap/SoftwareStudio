@@ -43,4 +43,19 @@ class Product {
       sellerID: data['sellerId'] ?? '',
     );
   }
+  factory Product.fromMap(Map<String, dynamic> data) {
+    return Product(
+      likes: data['likes'] ?? 0,
+      likedby: data['likedby'] ?? [],
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      category: data['category'] ?? '',
+      style: data['style'] ?? '',
+      link: data['link'] ?? '',
+      price: data['price'].toString(),
+      sellerID: data['sellerId'] ?? '',
+    );
+  }
 }
