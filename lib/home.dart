@@ -121,7 +121,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin {
       backgroundColor: theme.colorScheme.primary,
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateProperty.all(
+          labelTextStyle: MaterialStateProperty.all(
             TextStyle(
               color: theme.colorScheme.onPrimary
             )

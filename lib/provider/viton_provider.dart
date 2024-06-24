@@ -18,7 +18,7 @@ class VitonProvider with ChangeNotifier {
 
   Map<String, bool> getIsLoadingForCart(String cartId) => {cartId: isLoading[cartId] ?? false};
 
-  void loadData(String userId, String cartId) async {
+  void loadUserData(String userId){
     this.userId = userId;
     FirebaseFirestore.instance
       .collection('users')
@@ -38,6 +38,10 @@ class VitonProvider with ChangeNotifier {
     }).catchError((error) {
       print("Error getting user data: $error");
     });
+  }
+
+  void loadData(String userId, String cartId) async {
+    // loadUserData(userId);
 
     FirebaseFirestore.instance
       .collection('users')
@@ -145,12 +149,16 @@ class VitonProvider with ChangeNotifier {
     }
   }
 
-  void uploadPictureFromCamera(BuildContext context, Function warning, Function showUploadDialog) async {
+  void uploadPictureFromCamera(BuildContext context, Function warning, Function? showUploadDialog) async {
+    
     try {
-      bool shouldUpload = await showUploadDialog(context);
-      if (!shouldUpload) {
-        print("User chose not to upload an image.");
-        return;
+
+      if(showUploadDialog != null){
+        bool shouldUpload = await showUploadDialog(context);
+        if (!shouldUpload) {
+          print("User chose not to upload an image.");
+          return;
+        }
       }
 
       // Capture an image using the camera
@@ -179,6 +187,36 @@ class VitonProvider with ChangeNotifier {
           "bodypic": _imageUrl
       });
       link_bd = _imageUrl;
+      notifyListeners();
+    } catch (e) {
+      print("Error taking image: $e");
+    }
+  }
+
+  Future<void> uploadUpdate(io.File? myimage) async{
+    if(myimage == null) return;
+
+    io.File? image_phone = io.File(myimage.path);
+    String? url;
+    try {
+      String filename = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageRef = FirebaseStorage.instance.ref().child('viton/$filename');
+      UploadTask uploadTask = storageRef.putFile(myimage);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      url = await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      print("error uploading");
+      return null;
+    }
+    try{
+      FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .update({
+          "bodypic": url
+      });
+      link_bd = url;
+      print("changed body image");
       notifyListeners();
     } catch (e) {
       print("Error taking image: $e");

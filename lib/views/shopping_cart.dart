@@ -1,14 +1,18 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
-
+import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:prototype_ss/widgets/cart_item.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 class ShoppingCart extends StatefulWidget {
   const ShoppingCart({super.key});
@@ -30,6 +34,12 @@ class _ShoppingCartState extends State<ShoppingCart> {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
     _userId = _user?.uid ?? '';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final provider = Provider.of<VitonProvider>(context, listen: false);
+        provider.loadUserData(_userId);
+      }
+    });
     getShoppingCart();
   }
 
@@ -148,6 +158,263 @@ class _ShoppingCartState extends State<ShoppingCart> {
     }
   }
 
+  void warning(BuildContext context, String error){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(error)),
+    );
+  }
+  void showLoadingDialog(BuildContext context, String text) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,  // User cannot dismiss the dialog by tapping outside it
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 24),
+                Text(text),  // Optional text to describe the loading action
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void showchange(BuildContext context, ThemeData theme) {
+  final provider = Provider.of<VitonProvider>(context, listen: false);
+  String? _imageUrl = provider.link_bd;
+
+  io.File? _pickedImage;
+
+  showModalBottomSheet<dynamic>(
+    isScrollControlled: true,
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          void updateImage(io.File newImage) {
+            setModalState(() {
+              _pickedImage = newImage;
+              _imageUrl = null;  // Clear previous URL if switching to a file image
+            });
+          }
+
+          void updateImageUrl(String newUrl) {
+            setModalState(() {
+              _imageUrl = newUrl;
+              _pickedImage = null;  // Clear previous file if switching to a URL
+            });
+          }
+
+          Future<void> pickImage() async {
+            final picker = ImagePicker();
+            final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+            if (pickedFile != null) {
+              updateImage(io.File(pickedFile.path));
+            }
+          }
+
+          Future<void> enterImageUrl() async {
+            TextEditingController urlController = TextEditingController();
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Enter Image URL'),
+                  content: TextField(
+                    controller: urlController,
+                    decoration: InputDecoration(hintText: 'URL'),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        updateImageUrl(urlController.text);
+                      },
+                      child: Text('Update'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+
+          return FractionallySizedBox(
+            heightFactor: 0.9,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          "Change Image",
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimary,
+                            fontSize: 30
+                          ),
+                        ),
+                      )
+                    ),
+                    // Image display and selection handling
+                    GestureDetector(
+                      onTap: () {
+                        if (_pickedImage == null && _imageUrl == null) {
+                          pickImage();  // Call to pick an image from gallery
+                        } else {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: Icon(Icons.image),
+                                  title: Text('Change Image from Gallery'),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    pickImage();
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.link),
+                                  title: Text('Enter Image URL'),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    enterImageUrl();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        height: 500,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: 
+                          [
+                            ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Center(
+                              child: _pickedImage != null ? Image.file(
+                                _pickedImage!,
+                                fit: BoxFit.cover,
+                              ) : (_imageUrl != null ? Image.network(
+                                _imageUrl!,
+                                fit: BoxFit.cover,
+                              ) : Icon(
+                                Icons.image,
+                                size: 100,
+                                color: theme.colorScheme.onSecondary,
+                              )),
+                            ),
+                          ),
+                          Center(
+                            child: Container(
+                              height: 80,  // Set the height of the container
+                              width: 80,   // Set the width of the container
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.secondary,
+                                border: Border.all(color: theme.colorScheme.onPrimary, width: 5),  // Add a border with a specific color and width
+                                borderRadius: BorderRadius.circular(40),  // Make the border circular
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.edit,
+                                  color: theme.colorScheme.onPrimary,
+                                  size: 40,  // Increase the size of the icon
+                                ),
+                              ),
+                            )
+                          ),
+                          ]
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                          showLoadingDialog(context, "Processing...");
+
+                          try {
+                            // Perform the asynchronous operation and wait for it to finish
+                            await provider.uploadUpdate(_pickedImage);
+                          } catch (error) {
+                            print("Error during operation: $error");
+                          }finally {
+                            if (mounted) {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
+                          }
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Save'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return theme.colorScheme.primary.withOpacity(0.5); // Lighten the color when button is pressed
+                            } else if (states.contains(MaterialState.disabled))
+                              return theme.colorScheme.onSurface.withOpacity(0.12); // Disabled color
+                            return theme.colorScheme.primary; // Default color
+                          },
+                        ),
+                        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Colors.grey; // Color when button is disabled
+                            }
+                            return theme.colorScheme.onPrimary; // Text color
+                          },
+                        ),
+                        elevation: MaterialStateProperty.resolveWith<double>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return 0.0; // No elevation when pressed
+                            }
+                            return 4.0; // Default elevation
+                          },
+                        ),
+                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                            side: BorderSide(color: theme.colorScheme.primary), // Border color
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     double myHeight = MediaQuery.of(context).size.height;
@@ -166,6 +433,19 @@ class _ShoppingCartState extends State<ShoppingCart> {
               color: theme.colorScheme.onPrimary,
             ),
           ),
+          actions: [
+            Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: IconButton(
+                icon: const Icon(Icons.change_circle_outlined),
+                iconSize: 30,
+                color: theme.colorScheme.onPrimary,
+                onPressed: (){
+                  showchange(context, theme);
+                }
+              ),
+            ),
+          ],
         ),
         backgroundColor: theme.colorScheme.primary,
         body:
