@@ -93,85 +93,85 @@ class _BuyScreen extends State<BuyScreen> {
         width: 300,
         height: 400,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator()) // Show loading indicator
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: Image.network(
-                            widget.productData.imageUrl,
-                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                            fit: BoxFit.cover,
-                            height: 100,
-                            width: 100,
-                          ),
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Image.network(
+                          widget.productData.imageUrl,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                          fit: BoxFit.cover,
+                          height: 100,
+                          width: 100,
                         ),
-                        const SizedBox(width: 16.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.productData.name,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                '${widget.productData.price} NTD',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    Text(
-                      widget.productData.description,
-                      style: const TextStyle(
-                        fontSize: 16,
                       ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    // NumericStepButton(
-                    //   key: UniqueKey(),
-                    //   minValue: 1,
-                    //   maxValue: widget.productData. ?? 10,
-                    //   initialValue: _quantity,
-                    //   onChanged: (value) {
-                    //     setState(() {
-                    //       _quantity = value;
-                    //     });
-                    //   },
-                    // ),
-                    const SizedBox(height: 20.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancel'),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.productData.name,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text(
+                              '${widget.productData.price} NTD',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        ElevatedButton(
-                          onPressed: _addToCart,
-                          child: const Text('Add to Cart'),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  Text(
+                    widget.productData.description,
+                    style: const TextStyle(
+                      fontSize: 16,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  // NumericStepButton(
+                  //   key: UniqueKey(),
+                  //   minValue: 1,
+                  //   maxValue: widget.productData. ?? 10,
+                  //   initialValue: _quantity,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       _quantity = value;
+                  //     });
+                  //   },
+                  // ),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _addToCart,
+                        child: const Text('Add to Cart'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
       ),
     );
   }

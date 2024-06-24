@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
-import 'package:universal_io/io.dart' as universal_io;
 
 class AccountSettings extends StatefulWidget {
   final Function(String? userId) superGetUserInfo;
@@ -37,6 +36,7 @@ class _AccountSettings extends State<AccountSettings> {
 
   io.File? _pickedImage;
   String? _imageUrl;
+  bool _isLoading = false;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -63,7 +63,7 @@ class _AccountSettings extends State<AccountSettings> {
       if (querySnapshot.exists) {
         if (mounted) {
           setState(() {
-            username = querySnapshot.data()?['username'] ?? '';
+            username = querySnapshot.data()?['name'] ?? '';
             profileLink = querySnapshot.data()?['profileLink'] ?? '';
             gender = querySnapshot.data()?['gender'] ?? 'Male';
             email = querySnapshot.data()?['email'] ?? '';
@@ -91,6 +91,9 @@ class _AccountSettings extends State<AccountSettings> {
   }
 
   Future<void> updateUserInfo() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       // Upload the image if a new image is picked
       if (_pickedImage != null) {
@@ -98,7 +101,7 @@ class _AccountSettings extends State<AccountSettings> {
       }
 
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'username': _nameController.text,
+        'name': _nameController.text,
         'gender': gender,
         'email': _emailController.text,
         'phone': _phoneController.text,
@@ -117,6 +120,10 @@ class _AccountSettings extends State<AccountSettings> {
         );
       }
       catch(e){}
+    } finally{
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -203,141 +210,152 @@ class _AccountSettings extends State<AccountSettings> {
         ),
       ),
       backgroundColor: theme.colorScheme.primary,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: myHeight * 0.18,
-              decoration: BoxDecoration(color: theme.colorScheme.tertiary),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  height: myHeight * 0.18,
+                  decoration: BoxDecoration(color: theme.colorScheme.tertiary),
+                  child: Stack(
                     alignment: Alignment.center,
-                    child: CircleAvatar(
-                      radius: 60 > myWidth * 0.0875 ? myWidth * 0.0875 : 60,
-                      backgroundImage: NetworkImage(_imageUrl != null ? _imageUrl! : profileLink),
-                      backgroundColor: Colors.grey.shade300,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: 
-                    GestureDetector(
-                      onTap: pickImage,
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            width: 4,
-                            color: Colors.white,
-                          ),
-                          color: theme.colorScheme.tertiary,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 35),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  buildTextField(context, "Name", _nameController, username, false),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    child: DropdownButtonFormField<String>(
-                      dropdownColor: theme.colorScheme.secondary,
-                      value: gender.isNotEmpty ? gender : null,
-                      items: ['Male', 'Female', 'Other']
-                          .map((label) => DropdownMenuItem(
-                                value: label,
-                                child: Text(
-                                  label,
-                                  style: TextStyle(color: theme.colorScheme.onPrimary)
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        if(mounted){
-                          setState(() {
-                            gender = value!;
-                          });
-                        }
-                        
-                      },
-                      decoration:  InputDecoration(
-                        contentPadding: const EdgeInsets.only(bottom: 5),
-                        labelText: 'Gender',
-                        labelStyle: TextStyle(color: theme.colorScheme.onPrimary),
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        hintStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  buildTextField(context, "Email", _emailController, email, true),
-                  buildTextField(context,"Phone", _phoneController, '', false),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          padding: const EdgeInsets.symmetric(horizontal: 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          "CANCEL",
-                          style: TextStyle(
-                            fontSize: 14,
-                            letterSpacing: 2.2,
-                            color: Colors.white,
-                          ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: CircleAvatar(
+                          radius: 60 > myWidth * 0.0875 ? myWidth * 0.0875 : 60,
+                          backgroundImage: NetworkImage(_imageUrl != null ? _imageUrl! : profileLink),
+                          backgroundColor: Colors.grey.shade300,
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: updateUserInfo,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.secondary,
-                          padding: const EdgeInsets.symmetric(horizontal: 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          "SAVE",
-                          style: TextStyle(
-                            fontSize: 14,
-                            letterSpacing: 2.2,
-                            color: Colors.white,
+                      Positioned(
+                        bottom: 10,
+                        right: 10,
+                        child: 
+                        GestureDetector(
+                          onTap: pickImage,
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 4,
+                                color: Colors.white,
+                              ),
+                              color: theme.colorScheme.tertiary,
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 35),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      buildTextField(context, "Name", _nameController, username, false),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: DropdownButtonFormField<String>(
+                          dropdownColor: theme.colorScheme.secondary,
+                          value: gender.isNotEmpty ? gender : null,
+                          items: ['Male', 'Female', 'Other']
+                              .map((label) => DropdownMenuItem(
+                                    value: label,
+                                    child: Text(
+                                      label,
+                                      style: TextStyle(color: theme.colorScheme.onPrimary)
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            if(mounted){
+                              setState(() {
+                                gender = value!;
+                              });
+                            }
+                            
+                          },
+                          decoration:  InputDecoration(
+                            contentPadding: const EdgeInsets.only(bottom: 5),
+                            labelText: 'Gender',
+                            labelStyle: TextStyle(color: theme.colorScheme.onPrimary),
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            hintStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      buildTextField(context, "Email", _emailController, email, true),
+                      buildTextField(context,"Phone", _phoneController, '', false),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                              padding: const EdgeInsets.symmetric(horizontal: 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              "CANCEL",
+                              style: TextStyle(
+                                fontSize: 14,
+                                letterSpacing: 2.2,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: updateUserInfo,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.secondary,
+                              padding: const EdgeInsets.symmetric(horizontal: 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              "SAVE",
+                              style: TextStyle(
+                                fontSize: 14,
+                                letterSpacing: 2.2,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (_isLoading)
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(color: theme.colorScheme.primary.withOpacity(0.5)),
+              child: const Center(child: CircularProgressIndicator()) 
+            ),
+        ],
       ),
     );
   }

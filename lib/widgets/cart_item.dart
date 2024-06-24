@@ -113,7 +113,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                       fit: BoxFit.cover,
                       height: 450,
                       width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                      //errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Center(
@@ -446,6 +446,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                           ),
                         ),
                       ),
+                      if (productInfo['imageUrl'] != null)
                       Transform.rotate(
                         angle: -math.pi / 32,
                         child: Container(
@@ -457,7 +458,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                           ),
                           child: ClipRRect(
                             child: Image.network(
-                              productInfo['imageUrl'] ?? '',
+                              productInfo['imageUrl'],
                               fit: BoxFit.cover,
                               width: 150,
                               height: 150,

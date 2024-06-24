@@ -336,31 +336,33 @@ void showProductForm(BuildContext context, ThemeData theme) {
                       onPressed: addProduct,
                       child: const Text('Add Product'),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed))
+                        backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.pressed)) {
                               return theme.colorScheme.primary.withOpacity(0.5); // Lighten the color when button is pressed
-                            else if (states.contains(MaterialState.disabled))
+                            } else if (states.contains(WidgetState.disabled))
                               return theme.colorScheme.onSurface.withOpacity(0.12); // Disabled color
                             return theme.colorScheme.primary; // Default color
                           },
                         ),
-                        foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.disabled))
+                        foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.disabled)) {
                               return Colors.grey; // Color when button is disabled
+                            }
                             return theme.colorScheme.onPrimary; // Text color
                           },
                         ),
-                        elevation: MaterialStateProperty.resolveWith<double>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed))
+                        elevation: WidgetStateProperty.resolveWith<double>(
+                          (Set<WidgetState> states) {
+                            if (states.contains(WidgetState.pressed)) {
                               return 0.0; // No elevation when pressed
+                            }
                             return 4.0; // Default elevation
                           },
                         ),
-                        padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0)), // Padding inside the button
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0), // Rounded corners
                             side: BorderSide(color: theme.colorScheme.primary), // Border color

@@ -5,6 +5,7 @@ import 'package:prototype_ss/page_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
+import 'package:prototype_ss/provider/home_page_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
@@ -19,6 +20,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => ProductsProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => HomeProductsProvider())
       ],
       child: const MyApp(),
     ),

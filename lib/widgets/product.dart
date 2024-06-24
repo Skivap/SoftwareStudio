@@ -176,7 +176,7 @@ class _ProductState extends State<ProductContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(height: 50,),
+          const SizedBox(height: 20,),
           Row(
             children: [
               if (widget.showExitButton)
@@ -249,10 +249,12 @@ class _ProductState extends State<ProductContent> {
                       Text(
                         'Add',
                         style: TextStyle( 
-                          color: theme.colorScheme.onPrimary
+                          color: theme.colorScheme.onPrimary,
+                          fontSize: 15,
                         )
                       ),
-                      Icon(Icons.add, color: theme.colorScheme.onPrimary,)
+                      const SizedBox(width: 5),
+                      Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 20)
                     ],
                   )
                 )
@@ -302,6 +304,7 @@ class _ProductState extends State<ProductContent> {
               ],
             ),
           ),
+          const SizedBox(height: 20,),
         ],
       ),
     );

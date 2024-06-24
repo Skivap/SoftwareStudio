@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/views/user_settings_views/account_settings.dart';
 import 'package:prototype_ss/views/user_settings_views/appearance_settings.dart';
