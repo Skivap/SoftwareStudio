@@ -186,7 +186,7 @@ class _ProductState extends State<ProductContent> {
             ),
           ],
         ),
-        padding: const EdgeInsets.only(left:10, right: 10, top:50),
+        padding: const EdgeInsets.only(left:10, right: 10, top:40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

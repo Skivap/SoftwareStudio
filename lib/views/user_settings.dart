@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/views/user_settings_views/account_settings.dart';
 import 'package:prototype_ss/views/user_settings_views/appearance_settings.dart';
+import 'package:prototype_ss/views/user_page.dart';
 import 'package:provider/provider.dart';
 
 class UserSettings extends StatefulWidget {
@@ -18,7 +19,7 @@ class UserSettings extends StatefulWidget {
 
 class _UserSettingsState extends State<UserSettings> {
   late User? user;
-  late String? userId;
+  late String userId;
   String imageLink = '';
   String username = '';
 
@@ -134,9 +135,13 @@ class _UserSettingsState extends State<UserSettings> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.help, color: theme.colorScheme.onPrimary),
-              title: Text('Help and Support', style: TextStyle(color: theme.colorScheme.onPrimary)),
-              onTap: () {},
+              leading: Icon(Icons.portrait_rounded, color: theme.colorScheme.onPrimary),
+              title: Text('My Posts', style: TextStyle(color: theme.colorScheme.onPrimary)),
+              onTap: () {
+                if (userId != '') {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserPage(userId: userId,)));
+                }
+              },
             ),
             ListTile(
               leading: Icon(Icons.info, color: theme.colorScheme.onPrimary),
