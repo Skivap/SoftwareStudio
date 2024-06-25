@@ -75,7 +75,12 @@ class _CartItemCardState extends State<CartItemCard>  {
       isScrollControlled: true,
       context: context,
       builder: (context){
-        return ProductContent(productData: productData, showExitButton: true, showSwipeDelete: true,);
+        var data = provider.productData[cartItemData['cartId']];
+        Product prod = productData;
+        if(data != null){
+          prod = Product.fromFirestore(data);
+        }
+        return ProductContent(productData: prod, showExitButton: true, showSwipeDelete: true, isWardrobe: true, isHome: false);
       }
     );
   }
@@ -99,42 +104,74 @@ class _CartItemCardState extends State<CartItemCard>  {
         ),
       );
     }
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: theme.colorScheme.onPrimary, // Specify the color of the border
-          width: 2.0, // Specify the width of the border
-        ),
-      // borderRadius: BorderRadius.circular(15.0), // This sets the radius of the border
-      ),
-      child: ClipRRect(
-        // borderRadius: BorderRadius.circular(15.0),
-        child: Image.network(
-          vtonLink ?? '',
-          fit: BoxFit.cover,
-          width: 150,
-          height: 150,
-          loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-            if (loadingProgress == null) {
-              return child; // image has loaded
-            } else {
-              return Center(
-                child: SizedBox(
-                  width: 150, // Explicit width for the loader
-                  height: 150, // Explicit height for the loader
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
+    return GestureDetector(
+  onTap: () {
+    showDialog(
+      context: context,
+      barrierColor: Color.fromARGB(214, 0, 0, 0),  // Makes the background fully transparent
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.all(0),  // Adds padding around the dialog if needed
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),  // Tap anywhere to close the dialog
+            behavior: HitTestBehavior.opaque,  // Makes the empty areas interactive
+            child: Center(
+              child: InteractiveViewer(
+                panEnabled: true, // Allows panning
+                boundaryMargin: EdgeInsets.all(80),
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(50.0),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        child: Image.network(
+                          vtonLink ?? '', // Handles the case where vtonLink might be null
+                          fit: BoxFit.contain, // Ensures the image is scaled properly to fit within the bounds of the container without cropping
+                        ),
+                      ),
+                    ),
                 ),
-              );
-            } 
-          }
-        ),
-        
-      ),
+              ),
+            ),
+          ),
+        );
+      },
     );
+  },
+  child: Container(
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: theme.colorScheme.onPrimary,
+        width: 2.0,
+      ),
+    ),
+    child: ClipRRect(
+      child: Image.network(
+        vtonLink ?? '',
+        fit: BoxFit.cover,
+        width: 150,
+        height: 150,
+        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            return child;  // Image has loaded
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null ?
+                  loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! :
+                  null,
+              ),
+            );
+          }
+        },
+      ),
+    ),
+  ),
+);
+
   }
 
   Future<bool> showUploadDialog(BuildContext context) async {
@@ -297,7 +334,7 @@ class _CartItemCardState extends State<CartItemCard>  {
                           }
                           else{
                             print("Generate");
-                            provider.generate(cartItemData['cartId']);
+                            provider.generate(cartItemData['cartId'], productInfo['imageUrl']);
                           }
                           
                         },

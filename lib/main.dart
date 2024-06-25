@@ -6,7 +6,6 @@ import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:prototype_ss/provider/product_provider.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
-import 'package:prototype_ss/provider/viton_provider.dart';
 import 'package:prototype_ss/provider/home_page_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:prototype_ss/model/product_model.dart';
 import 'package:prototype_ss/provider/theme_provider.dart';
 import 'package:prototype_ss/service/firestore_service.dart';
@@ -15,10 +16,14 @@ class ProductContent extends StatefulWidget {
   final Product productData;
   final bool showExitButton;
   final bool showSwipeDelete;
+  final bool isWardrobe;
+  final bool isHome;
 
   const ProductContent({
     super.key,
     required this.productData,
+    required this.isWardrobe,
+    required this.isHome,
     this.showExitButton = false,
     this.showSwipeDelete = false
   });
@@ -44,12 +49,16 @@ class _ProductState extends State<ProductContent> {
   String profileLink = '';
   String username = '';
   late int likes;
+  late bool isWardrobe;
+  late bool isHome;
   bool isLiked = false; // Provide a default value for isLiked
 
   @override
   void initState() {
     super.initState();
     likes = widget.productData.likes;
+    isWardrobe = widget.isWardrobe;
+    isHome = widget.isHome;
     _initializeLikeState();
     getUserInfo(widget.productData.sellerID);
   }
@@ -121,7 +130,7 @@ class _ProductState extends State<ProductContent> {
     }
   }
 
-  void addProduct(String userId) async {
+  Future<void> addProduct(String userId) async {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null){
       showErrorDialog(context, 'No user is signed in');
@@ -170,14 +179,14 @@ class _ProductState extends State<ProductContent> {
           color: theme.colorScheme.primary,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.8),
               spreadRadius: 2,
               blurRadius: 2,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.only(left:10, right: 10, top:50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -247,17 +256,21 @@ class _ProductState extends State<ProductContent> {
                         color: isLiked ? theme.colorScheme.tertiary : theme.colorScheme.onPrimary,
                         onPressed: _toggleLike,
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.chat_bubble_outline),
-                        color: theme.colorScheme.onPrimary,
-                        onPressed: () {},
-                      ),
                     ],
                   ),
-                  ElevatedButton(
-                    onPressed:(){addProduct(widget.productData.sellerID);}, 
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.secondary
+                  Row(
+                    children: [
+                      if(!isWardrobe)
+                      ElevatedButton(
+                        onPressed:() async {
+                          await addProduct(widget.productData.sellerID);
+                          if(!isHome){
+                            Navigator.pop(context);
+                          }
+                        }, 
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary
+                        
                     ),
                     child: Row(
                       children: [
@@ -268,11 +281,44 @@ class _ProductState extends State<ProductContent> {
                             fontSize: 15,
                           )
                         ),
-                        const SizedBox(width: 5),
                         Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 20)
                       ],
                     )
+                  ),
+                  Container(width: 20,),
+                  Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20), 
+                        color: theme.colorScheme.tertiary
+                      ),
+                      padding: const EdgeInsets.only(top:9 ,bottom: 9, left: 15,right: 15),
+                      child: InkWell(
+                        onTap: () async {
+                          if (widget.productData.link != '') {
+                            await launchUrl(Uri.parse(widget.productData.link));
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              'Link', 
+                              style: TextStyle(
+                                color: theme.colorScheme.onPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic
+                              ),
+                            ),
+                            Container(width: 5,),
+                            Transform.rotate(angle: 2,child: Icon(Icons.link, color: theme.colorScheme.onPrimary, size: 20))
+                            
+                          ],
+                        ),
+                      ),
+                    ),
+                    ],
                   )
+                  
                 ],
               ),
             ),
@@ -306,31 +352,6 @@ class _ProductState extends State<ProductContent> {
                     ),
                   ),
                   const SizedBox(height: 20.0),
-                  Center(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5), 
-                        color: theme.colorScheme.tertiary
-                      ),
-                      padding: const EdgeInsets.all(9),
-                      child: InkWell(
-                        onTap: () async {
-                          if (widget.productData.link != '') {
-                            await launchUrl(Uri.parse(widget.productData.link));
-                          }
-                        },
-                        child: Text(
-                          'Buy Product', 
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary, 
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),

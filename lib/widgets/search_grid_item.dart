@@ -24,7 +24,7 @@ class _SearchGridItemState extends State<SearchGridItem> {
       isScrollControlled: true,
       context: context,
       builder: (context) {
-        return ProductContent(productData: productData, showExitButton: true,);
+        return ProductContent(productData: productData, showExitButton: true, isWardrobe: false, isHome: false);
       },
     );
   }

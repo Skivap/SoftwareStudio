@@ -147,6 +147,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
       );
     } catch (e) {
       print('Error removing item from cart: $e');
+      if(mounted){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: SizedBox(
@@ -158,10 +159,13 @@ class _ShoppingCartState extends State<ShoppingCart> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      }
     } finally {
+      if(mounted){
       setState(() {
         isLoading2 = false;
       });
+      }
     }
   }
 
@@ -198,6 +202,8 @@ class _ShoppingCartState extends State<ShoppingCart> {
   String? _imageUrl = provider.link_bd;
 
   io.File? _pickedImage;
+
+  
 
   showModalBottomSheet<dynamic>(
     isScrollControlled: true,
@@ -252,6 +258,15 @@ class _ShoppingCartState extends State<ShoppingCart> {
             );
           }
 
+          Future<void> pickImageCam(ImageSource source) async {
+            final picker = ImagePicker();
+            final pickedFile = await picker.pickImage(source: source);
+            if (pickedFile != null) {
+              updateImage(io.File(pickedFile.path));
+            }
+          }
+
+
           return FractionallySizedBox(
             heightFactor: 0.9,
             child: Container(
@@ -269,7 +284,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
-                          "Change Image",
+                          "\nChange Body Picture",
                           style: TextStyle(
                             color: theme.colorScheme.onPrimary,
                             fontSize: 30
@@ -294,6 +309,14 @@ class _ShoppingCartState extends State<ShoppingCart> {
                                   onTap: () {
                                     Navigator.of(context).pop();
                                     pickImage();
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.camera_alt),
+                                  title: const Text('Take Photo'),
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    pickImageCam(ImageSource.camera); // Take a new photo
                                   },
                                 ),
                                 ListTile(

@@ -92,7 +92,7 @@ class _ProductPageState extends State<ProductPage> {
                           duration: const Duration(milliseconds: 375),
                           child: SlideAnimation(
                             child: FadeInAnimation(
-                              child: ProductContent(productData: products[index]),
+                              child: ProductContent(productData: products[index], isWardrobe: false, isHome: true),
                             ),
                           ),
                         );

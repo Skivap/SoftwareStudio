@@ -6,28 +6,28 @@ Future<String> fetchVitonResult(String bgUrl, String grUrl) async {
 
   print("Calling API");
 
-  // String hostApi = dotenv.env['HOST_API']!;
+  String hostApi = dotenv.env['HOST_API']!;
 
-  // var url = Uri.http(hostApi, '/viton/', {
-  //   'bgUrl': bgUrl,
-  //   'grUrl': grUrl
-  // });
+  var url = Uri.http(hostApi, '/viton/', {
+    'bgUrl': bgUrl,
+    'grUrl': grUrl
+  });
 
-  // try {
-  //   var response = await http.get(url);
-  //   if (response.statusCode == 200) {
-  //     var jsonResponse = jsonDecode(response.body);
-  //     return jsonResponse['result'].toString();
-  //   } else {
-  //     return 'Failed with status code: ${response.statusCode}';
-  //   }
-  // } catch (e) {
-  //   return 'Failed to connect or retrieve data: $e';
-  // }
-  await Future.delayed(const Duration(seconds: 3));
+  try {
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      return jsonResponse['result'].toString();
+    } else {
+      return 'Failed with status code: ${response.statusCode}';
+    }
+  } catch (e) {
+    return 'Failed to connect or retrieve data: $e';
+  }
+  // await Future.delayed(const Duration(seconds: 3));
 
-  print("Done");
-  return bgUrl;
+  // print("Done");
+  // return grUrl;
 
 
 }

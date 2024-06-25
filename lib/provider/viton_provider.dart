@@ -14,6 +14,8 @@ class VitonProvider with ChangeNotifier {
   Map<String, bool> isLoading = {};
   String? link_bd;
   Map<String, String> link_vton = {};
+  Map<String, DocumentSnapshot> productData = {};
+
   String? userId;
 
   Map<String, bool> getIsLoadingForCart(String cartId) => {cartId: isLoading[cartId] ?? false};
@@ -36,14 +38,15 @@ class VitonProvider with ChangeNotifier {
       }
 
     }).catchError((error) {
+      print(userId);
       print("Error getting user data: $error");
     });
   }
 
   void loadData(String userId, String cartId) async {
-    // loadUserData(userId);
 
-    FirebaseFirestore.instance
+    String? prodid;
+    await FirebaseFirestore.instance
       .collection('users')
       .doc(userId)
       .collection('cart')
@@ -55,18 +58,40 @@ class VitonProvider with ChangeNotifier {
         // Handle the retrieved data, e.g., convert to a model or use a Map
         var data = documentSnapshot.data() as Map<String, dynamic>;
         link_vton[cartId] = data["url"];
+        prodid = data["productId"];
         notifyListeners();
       } else {
         print('No data cart found for user $userId');
+        return;
       }
 
     }).catchError((error) {
+      print("$userId, $cartId");
+      print("Error getting user data: $error");
+      return;
+    });
+
+    await FirebaseFirestore.instance
+      .collection('products')
+      .doc(prodid)
+      .get()
+      .timeout(const Duration(seconds: 10))
+      .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        productData[cartId] = documentSnapshot;
+        // notifyListeners();
+      } else {
+        print('No data cart found for user $prodid');
+      }
+
+    }).catchError((error) {
+      print("$userId, $cartId");
       print("Error getting user data: $error");
     });
     // notifyListeners();
   }
 
-  void generate(cartId) async {
+  void generate(cartId, imageUrl) async {
     if(userId == null) return;
     if(isLoading[cartId] == true) return;
     try {
@@ -84,8 +109,8 @@ class VitonProvider with ChangeNotifier {
           isLoading[cartId] = true;
           notifyListeners();
           var result = await fetchVitonResult(
-            "https://thumbs.dreamstime.com/b/cheerful-casual-indian-man-full-body-isolated-white-photo-37914698.jpg",
-            "https://img.freepik.com/free-photo/blue-t-shirt_125540-727.jpg"
+            userData["bodypic"],
+            imageUrl
           );
           try {
             await FirebaseFirestore.instance

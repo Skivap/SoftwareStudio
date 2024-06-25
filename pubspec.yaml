@@ -36,10 +36,15 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
+  
   assets:
     - assets/images/
     - assets/images/banners/banner1.jpg
     - assets/images/banners/banner2.jpg
     - assets/images/banners/banner3.jpg
     - .env
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
